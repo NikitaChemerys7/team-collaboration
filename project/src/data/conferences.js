@@ -32,6 +32,10 @@ export const conferences = [
         role: 'Professor',
         workplace: 'Slovak Technical University'
       }
+    ],
+    files: [
+      { name: 'Conference Program', url: '/docs/program-ai2025.pdf' },
+      { name: 'Call for Papers', url: '/docs/cfp-ai2025.docx' }
     ]
   },
 

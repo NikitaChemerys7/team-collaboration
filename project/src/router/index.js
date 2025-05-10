@@ -12,6 +12,7 @@ import NotFoundPage from '../views/NotFoundPage.vue'
 
 // Auth pages
 import LoginPage from '../views/auth/LoginPage.vue'
+import RegistrationPage from '../views/auth/RegistrationPage.vue'
 
 // Admin & Editor pages
 import DashboardPage from '../views/dashboard/DashboardPage.vue'
@@ -67,6 +68,12 @@ const routes = [
     name: 'login',
     component: LoginPage,
     meta: { title: 'Login', publicOnly: true }
+  },
+  {
+    path: '/registration',
+    name: 'registration',
+    component: RegistrationPage,
+    meta: { title: 'Registration', publicOnly: true }
   },
   
   // Protected routes

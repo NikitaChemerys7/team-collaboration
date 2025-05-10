@@ -27,6 +27,15 @@
         </div>
       </div>
     </div>
+
+    <h2>Documents</h2>
+    <ul>
+      <li v-for="file in conference.files" :key="file.url">
+        <a :href="file.url" target="_blank" rel="noopener">
+          📄 {{ file.name }}
+        </a>
+      </li>
+    </ul>
   </div>
 </template>
 
