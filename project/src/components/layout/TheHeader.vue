@@ -33,6 +33,7 @@
             </template>
             <template v-else>
               <router-link to="/login" class="login-link">Login</router-link>
+              <router-link to="/registration" class="login-link">Registration</router-link>
             </template>
           </nav>
 

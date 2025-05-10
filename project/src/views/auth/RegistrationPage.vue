@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'RegistrationPage',
   data() {
@@ -94,19 +95,31 @@ export default {
     clearError() {
       this.error = ''
     },
-    handleRegister() {
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
         this.error = 'Passwords do not match.'
         return
       }
-      // simulate frontend handling
-      console.log('Registering:', {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      })
-      alert('Registration successful. You can now log in.')
-      this.$router.push('/login')
+
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/api/register', {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          password_confirmation: this.confirmPassword
+        })
+
+        alert('Registration successful!')
+        this.$router.push('/login')
+
+      } catch (error) {
+        if (error.response && error.response.data.errors) {
+          const errors = error.response.data.errors
+          this.error = Object.values(errors).flat().join(' ')
+        } else {
+          this.error = 'Registration failed. Please try again.'
+        }
+      }
     }
   }
 }
