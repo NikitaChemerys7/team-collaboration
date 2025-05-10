@@ -52,6 +52,10 @@
     
     <transition name="slide-down">
       <nav v-if="showMobileMenu" class="mobile-nav">
+        <router-link to="/" @click="closeMobileMenu">Home</router-link>
+        <router-link to="/about" @click="closeMobileMenu">About</router-link>
+        <router-link to="/conferences" @click="closeMobileMenu">Conferences</router-link>
+        <router-link to="/contact" @click="closeMobileMenu">Contact</router-link>
         <template v-if="isLoggedIn">
           <router-link to="/dashboard" @click="closeMobileMenu">Dashboard</router-link>
           <router-link to="/profile" @click="closeMobileMenu">Profile</router-link>
@@ -175,7 +179,7 @@ export default {
   border: none;
   cursor: pointer;
   font-size: 1.25rem;
-  margin-right: var(--spacing-md);
+  margin-left: var(--spacing-md);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -2,22 +2,28 @@
   <div class="conference-detail-page" v-if="conference">
     <div class="hero-image" :style="{ backgroundImage: `url(${conference.heroImage})` }"></div>
 
-    <h1>{{ conference.title }}</h1>
-    <p><strong>Date:</strong> {{ conference.date }}</p>
-    <p><strong>Location:</strong> {{ conference.location }}</p>
-    <p>{{ conference.description }}</p>
+    <div class="conf-top">
+      <h1>{{ conference.title }}</h1>
+      <p><strong>Date:</strong> {{ conference.date }}</p>
+      <p><strong>Location:</strong> {{ conference.location }}</p>
+      <p>{{ conference.description }}</p>
+    </div>
 
-    <h2>Gallery</h2>
-    <GalleryLightbox :images="galleryImages" />
+    <div class="conf-gallery">
+      <h2>Gallery</h2>
+      <GalleryLightbox :images="galleryImages" />
+    </div>
 
-    <h2>Speakers</h2>
-    <div class="speakers">
-      <div class="speaker" v-for="speaker in conference.speakers" :key="speaker.name">
-        <img :src="speaker.photo" alt="Speaker photo" />
-        <div class="info">
-          <h3>{{ speaker.name }}</h3>
-          <p><strong>{{ speaker.role }}</strong></p>
-          <p>{{ speaker.workplace }}</p>
+    <div class="conf-speakers">
+      <h2>Speakers</h2>
+      <div class="speakers">
+        <div class="speaker" v-for="speaker in conference.speakers" :key="speaker.name">
+          <img :src="speaker.photo" alt="Speaker photo" />
+          <div class="info">
+            <h3>{{ speaker.name }}</h3>
+            <p class="speaker-role"><strong>{{ speaker.role }}</strong></p>
+            <p>{{ speaker.workplace }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -89,23 +95,13 @@ export default {
   transform: scale(1.03);
 }
 
-/* .lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.conf-top {
+  margin: 30px 0 60px;
 }
-.lightbox-img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 12px;
-} */
+
+.conf-gallery {
+  margin: 60px 0;
+}
 
 .speakers {
   display: flex;
@@ -131,5 +127,9 @@ export default {
 
 .speaker .info h3 {
   margin: 0.5rem 0 0.2rem;
+}
+
+.speaker-role {
+  margin: 5px 0;
 }
 </style>
