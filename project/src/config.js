@@ -1,5 +1,5 @@
 // API Configuration
-export const API_URL = 'https://api.university-consortium-cms.com/api'
+export const API_URL = 'http://127.0.0.1:8000/api'
 
 // File upload configuration
 export const UPLOAD_MAX_SIZE = 10 * 1024 * 1024 // 10MB

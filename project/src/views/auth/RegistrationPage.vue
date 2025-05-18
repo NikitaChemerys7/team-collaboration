@@ -43,6 +43,7 @@
               class="form-control"
               placeholder="Choose a password"
               required
+              autocomplete="new-password"
             />
           </div>
         </div>
@@ -57,6 +58,7 @@
               class="form-control"
               placeholder="Repeat your password"
               required
+              autocomplete="new-password"
             />
           </div>
         </div>
@@ -102,7 +104,7 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/api/register', {
+        const response = await axios.post('http://127.0.0.1:8000/api/auth/register', {
           name: this.name,
           email: this.email,
           password: this.password,

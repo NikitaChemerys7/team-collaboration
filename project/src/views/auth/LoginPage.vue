@@ -18,6 +18,7 @@
             class="form-control"
             placeholder="Enter your email"
             required
+            autocomplete="username"
             :disabled="authStore.loading"
           />
         </div>
@@ -32,6 +33,7 @@
               class="form-control"
               placeholder="Enter your password"
               required
+              autocomplete="current-password"
               :disabled="authStore.loading"
             />
             <button

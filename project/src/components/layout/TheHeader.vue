@@ -87,11 +87,11 @@ export default {
     ...mapState(useAuthStore, ['isLoggedIn', 'user']),
     ...mapState(useThemeStore, ['isDarkMode']),
     userRole() {
-      if (!this.user) return ''
+      if (!this.user || !this.user.role) return ''
       return this.user.role.charAt(0).toUpperCase() + this.user.role.slice(1)
     },
     userRoleClass() {
-      if (!this.user) return ''
+      if (!this.user || !this.user.role) return ''
       return `role-${this.user.role.toLowerCase()}`
     }
   },

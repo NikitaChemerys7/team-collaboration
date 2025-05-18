@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
 
       try {
-        await axios.get(`${API_URL}/sanctum/csrf-cookie`)
+        await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie')
 
         const response = await axios.post(`${API_URL}/auth/login`, {
           email,
