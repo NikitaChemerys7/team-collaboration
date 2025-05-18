@@ -21,7 +21,7 @@ class AuthController extends Controller
                 'message' => 'Invalid login credentials'
             ], 401);
         }
-
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $token = $user->createToken('API Token')->plainTextToken;
 
