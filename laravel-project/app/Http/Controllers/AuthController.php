@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-
+use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -33,24 +33,38 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
+        try {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'user'
         ]);
-
-        $token = $user->createToken('API Token')->plainTextToken;
-
+         $token = $user->createToken('API Token')->plainTextToken;
+        
         return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ]);
+            'message' => 'User registered successfully',
+            'user' => $user,
+            'token' => $token 
+        ], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function logout(Request $request)
