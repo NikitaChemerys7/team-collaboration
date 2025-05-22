@@ -8,9 +8,10 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/auth/me', function (Request $request) {
-        return $request->user();
-    });
-
+     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    Route::middleware('role:admin')->group(function () {
+        
+    });
 });

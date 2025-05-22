@@ -81,7 +81,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardPage,
-    meta: { title: 'Dashboard', requiresAuth: true }
+    meta: { title: 'Dashboard', requiresAuth: true, roles: ['admin', 'editor'] }
   },
   {
     path: '/profile',
@@ -145,7 +145,7 @@ router.beforeEach((to, from, next) => {
   
   // Redirect logged in users away from login page
   if (to.meta.publicOnly && isLoggedIn) {
-    return next('/dashboard')
+    return next('/')
   }
   
   // Check if route requires authentication
@@ -157,7 +157,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.roles && isLoggedIn) {
     const hasRequiredRole = to.meta.roles.includes(user.role)
     if (!hasRequiredRole) {
-      return next('/dashboard')
+        return next('/')
     }
   }
   

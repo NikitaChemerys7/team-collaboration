@@ -40,9 +40,14 @@ export const useAuthStore = defineStore('auth', {
         })
 
         this.user = response.data.user
+        if (this.user.role === 'admin' || this.user.role === 'editor') {
+          router.push('/dashboard')
+        } else {
+          router.push('/')
+        }
         localStorage.setItem('user', JSON.stringify(response.data.user))
         localStorage.setItem('token', response.data.token)
-        router.push('/dashboard')
+        router.push('/')
         return true
       } catch (error) {
         this.error = error.response?.data?.message || 'Login failed'
