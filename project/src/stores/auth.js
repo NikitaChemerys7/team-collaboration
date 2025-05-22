@@ -5,9 +5,17 @@ import { API_URL } from '../config'
 
 axios.defaults.withCredentials = true
 
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
+    user: JSON.parse(localStorage.getItem('user')) || null,
     loading: false,
     error: null
   }),
@@ -32,6 +40,8 @@ export const useAuthStore = defineStore('auth', {
         })
 
         this.user = response.data.user
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.token)
         router.push('/dashboard')
         return true
       } catch (error) {
@@ -47,6 +57,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await axios.get(`${API_URL}/auth/me`)
         this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
         return this.user
       } catch (error) {
         this.logout()
@@ -57,13 +68,16 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      await axios.post(`${API_URL}/auth/logout`)
-      this.user = null
-      router.push('/login')
-    },
-
-    clearError() {
-      this.error = null
+      try {
+        await axios.post(`${API_URL}/auth/logout`)
+      } catch (error) {
+        console.error('Logout error:', error)
+      } finally {
+        this.user = null
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        router.push('/login')
+      }
     }
   }
 })

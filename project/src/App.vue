@@ -15,6 +15,7 @@
 <script>
 import { mapState } from 'pinia'
 import { useThemeStore } from './stores/theme'
+import { useAuthStore } from './stores/auth'
 import TheHeader from './components/layout/TheHeader.vue'
 import TheFooter from './components/layout/TheFooter.vue'
 
@@ -26,6 +27,12 @@ export default {
   },
   computed: {
     ...mapState(useThemeStore, ['isDarkMode'])
+  },
+  async created() {
+    const authStore = useAuthStore()
+    if (localStorage.getItem('token')) {
+      await authStore.fetchCurrentUser()
+    }
   }
 }
 </script>
