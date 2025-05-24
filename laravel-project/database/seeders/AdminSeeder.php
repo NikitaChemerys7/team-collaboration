@@ -27,4 +27,4 @@ class AdminSeeder extends Seeder
             'role' => 'editor'
         ]);
     }
-} 
+}

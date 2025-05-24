@@ -57,21 +57,14 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
-        const response = await axios.post(
-          `${API_URL}/conferences`,
-          conferenceData,
-          { headers: authStore.authHeader }
-        )
-        
+        const response = await axios.post(`${API_URL}/conferences`, conferenceData)
         this.conferences.push(response.data)
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to create conference'
         console.error('Error creating conference:', error)
-        return null
+        throw error
       } finally {
         this.loading = false
       }
@@ -81,29 +74,17 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
-        const response = await axios.put(
-          `${API_URL}/conferences/${id}`,
-          conferenceData,
-          { headers: authStore.authHeader }
-        )
-        
-        const index = this.conferences.findIndex(conf => conf.id === id)
+        const response = await axios.put(`${API_URL}/conferences/${id}`, conferenceData)
+        const index = this.conferences.findIndex(c => c.id === id)
         if (index !== -1) {
           this.conferences[index] = response.data
         }
-        
-        if (this.currentConference && this.currentConference.id === id) {
-          this.currentConference = response.data
-        }
-        
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.message || `Failed to update conference with ID ${id}`
-        console.error(`Error updating conference ${id}:`, error)
-        return null
+        this.error = error.response?.data?.message || 'Failed to update conference'
+        console.error('Error updating conference:', error)
+        throw error
       } finally {
         this.loading = false
       }
@@ -113,25 +94,13 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
-        await axios.delete(
-          `${API_URL}/conferences/${id}`,
-          { headers: authStore.authHeader }
-        )
-        
-        this.conferences = this.conferences.filter(conf => conf.id !== id)
-        
-        if (this.currentConference && this.currentConference.id === id) {
-          this.currentConference = null
-        }
-        
-        return true
+        await axios.delete(`${API_URL}/conferences/${id}`)
+        this.conferences = this.conferences.filter(c => c.id !== id)
       } catch (error) {
-        this.error = error.response?.data?.message || `Failed to delete conference with ID ${id}`
-        console.error(`Error deleting conference ${id}:`, error)
-        return false
+        this.error = error.response?.data?.message || 'Failed to delete conference'
+        console.error('Error deleting conference:', error)
+        throw error
       } finally {
         this.loading = false
       }
