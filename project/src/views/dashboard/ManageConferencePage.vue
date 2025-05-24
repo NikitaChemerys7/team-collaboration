@@ -104,14 +104,14 @@
 
           <div class="form-group">
             <label for="description" class="form-label">Description</label>
-            <textarea
-              id="description"
+            <Editor
               v-model="form.description"
-              class="form-control"
-              rows="4"
-              required
+              :init="editorConfig"
               :disabled="saving"
-            ></textarea>
+              class="tinymce-editor"
+              api-key="bhzhqrj5zy8hc6r6y0dlz9fu1kz0guzcw13szbgryoumiw4t"
+              :output-format="'html'"
+            />
           </div>
 
           <div class="form-group">
@@ -247,6 +247,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConferenceStore } from '../../stores/conference'
+import Editor from '@tinymce/tinymce-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -260,6 +261,21 @@ const galleryInput = ref('')
 const newYear = ref('')
 const years = ref([new Date().getFullYear()])
 
+const editorConfig = {
+  height: 400,
+  menubar: true,
+  plugins: [
+    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+  ],
+  toolbar: 'undo redo | blocks | ' +
+    'bold italic forecolor | alignleft aligncenter ' +
+    'alignright alignjustify | bullist numlist outdent indent | ' +
+    'removeformat | help',
+  content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }'
+}
+
 const form = ref({
   title: '',
   year: selectedYear.value,
@@ -272,7 +288,6 @@ const form = ref({
   files: []
 })
 
-// Update years when conferences change
 watch(() => store.conferences, (conferences) => {
   const allYears = conferences.map(c => c.year)
   const unique = Array.from(new Set([...allYears, new Date().getFullYear()]))
@@ -310,6 +325,9 @@ async function editConference(id) {
   const conf = store.currentConference
   if (conf) {
     form.value = JSON.parse(JSON.stringify(conf))
+    if (form.value.date) {
+      form.value.date = new Date(form.value.date).toISOString().split('T')[0]
+    }
     galleryInput.value = conf.gallery ? conf.gallery.join(', ') : ''
     editingId.value = conf.id
     selectedYear.value = conf.year
@@ -340,15 +358,25 @@ watch(galleryInput, (val) => {
 
 async function saveConference() {
   saving.value = true
-  if (editingId.value) {
-    await store.updateConference(editingId.value, form.value)
-  } else {
-    await store.createConference(form.value)
+  try {
+    const dataToSave = {
+      ...form.value,
+      date: form.value.date ? new Date(form.value.date).toISOString().split('T')[0] : null
+    }
+    
+    if (editingId.value) {
+      await store.updateConference(editingId.value, dataToSave)
+    } else {
+      await store.createConference(dataToSave)
+    }
+    await store.fetchConferences()
+    saving.value = false
+    resetForm()
+    router.replace({ name: 'manage-conference' })
+  } catch (error) {
+    console.error('Error saving conference:', error)
+    saving.value = false
   }
-  await store.fetchConferences()
-  saving.value = false
-  resetForm()
-  router.replace({ name: 'manage-conference' })
 }
 
 async function deleteConference() {
@@ -373,7 +401,6 @@ onMounted(async () => {
   loading.value = true
   await store.fetchConferences()
   loading.value = false
-  // If editing
   if (route.params.id) {
     editConference(Number(route.params.id))
   }
@@ -610,5 +637,15 @@ onMounted(async () => {
   color: var(--color-text-secondary);
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.tinymce-editor {
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.tinymce-editor :deep(.tox-tinymce) {
+  border: none !important;
 }
 </style>

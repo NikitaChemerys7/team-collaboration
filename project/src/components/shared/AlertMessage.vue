@@ -50,7 +50,7 @@ export default {
     },
     duration: {
       type: Number,
-      default: 0 // 0 means it won't auto-dismiss
+      default: 0
     },
     showIcon: {
       type: Boolean,

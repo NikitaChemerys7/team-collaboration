@@ -1,10 +1,7 @@
-// API Configuration
 export const API_URL = 'http://127.0.0.1:8000/api'
 
-// File upload configuration
 export const UPLOAD_MAX_SIZE = 10 * 1024 * 1024 // 10MB
 
-// University list
 export const UNIVERSITIES = [
   {
     id: 1,
@@ -72,14 +69,12 @@ export const UNIVERSITIES = [
   }
 ]
 
-// Validation constants
 export const VALIDATION = {
   MIN_PASSWORD_LENGTH: 8,
   MAX_TITLE_LENGTH: 100,
   MAX_CONTENT_LENGTH: 100000
 }
 
-// Supported file types
 export const SUPPORTED_FILE_TYPES = [
   '.doc',
   '.docx',

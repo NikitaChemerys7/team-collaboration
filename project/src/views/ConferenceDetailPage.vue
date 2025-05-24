@@ -43,7 +43,7 @@
       <div class="main-content">
         <div class="description-section">
           <h2>About the Conference</h2>
-          <p>{{ conference.description }}</p>
+          <div v-html="conference.description" class="description-content"></div>
         </div>
 
         <!-- Speakers Section -->
@@ -436,5 +436,22 @@ h2 {
   to {
     transform: rotate(360deg);
   }
+}
+
+.description-content {
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.description-content :deep(p) {
+  margin-bottom: 1rem;
+}
+
+.description-content :deep(strong) {
+  font-weight: 600;
+}
+
+.description-content :deep(em) {
+  font-style: italic;
 }
 </style>

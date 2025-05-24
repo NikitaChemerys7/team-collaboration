@@ -165,7 +165,6 @@ export default {
     generateSlug() {
       if (!this.form.title) return
       
-      // Convert title to lowercase, replace spaces with hyphens, remove special chars
       const slug = this.form.title
         .toLowerCase()
         .replace(/\s+/g, '-')
@@ -192,7 +191,6 @@ export default {
           await this.createSubpage(this.conferenceId, subpageData)
         }
         
-        // Navigate back to subpage management
         this.$router.push({
           name: 'manage-subpages',
           params: { conferenceId: this.conferenceId }
@@ -209,12 +207,10 @@ export default {
     }
   },
   async mounted() {
-    // Load conference data
     if (!this.currentConference || this.currentConference.id !== this.conferenceId) {
       await this.fetchConferenceById(this.conferenceId)
     }
     
-    // If editing, load subpage data
     if (this.isEditing) {
       this.loading = true
       try {
@@ -236,7 +232,6 @@ export default {
     }
   },
   beforeUnmount() {
-    // Clear any existing error
     this.clearError()
   }
 }

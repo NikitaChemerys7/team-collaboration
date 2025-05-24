@@ -119,7 +119,6 @@ export const useConferenceStore = defineStore('conference', {
           { headers: authStore.authHeader }
         )
         
-        // Update local state
         const index = this.conferences.findIndex(conf => conf.id === conferenceId)
         if (index !== -1) {
           this.conferences[index] = response.data

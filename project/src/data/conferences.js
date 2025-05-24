@@ -39,5 +39,4 @@ export const conferences = [
     ]
   },
 
-  // ...more conferences
 ]

@@ -27,10 +27,8 @@ export const useSubpageStore = defineStore('subpage', {
       
       try {
         const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`)
-        // Store in local state
         const newSubpages = response.data
         
-        // Filter out duplicates before updating
         const existingIds = this.subpages
           .filter(sp => sp.conferenceId === conferenceId)
           .map(sp => sp.id)
@@ -60,7 +58,6 @@ export const useSubpageStore = defineStore('subpage', {
         const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
         this.currentSubpage = response.data
         
-        // Update in local state if exists
         const index = this.subpages.findIndex(sp => sp.id === subpageId)
         if (index !== -1) {
           this.subpages[index] = response.data
@@ -114,8 +111,6 @@ export const useSubpageStore = defineStore('subpage', {
           subpageData,
           { headers: authStore.authHeader }
         )
-        
-        // Update in local state
         const index = this.subpages.findIndex(sp => sp.id === subpageId)
         if (index !== -1) {
           this.subpages[index] = response.data
@@ -146,8 +141,7 @@ export const useSubpageStore = defineStore('subpage', {
           `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
           { headers: authStore.authHeader }
         )
-        
-        // Remove from local state
+      
         this.subpages = this.subpages.filter(sp => sp.id !== subpageId)
         
         if (this.currentSubpage && this.currentSubpage.id === subpageId) {
