@@ -1,0 +1,88 @@
+import { defineStore } from 'pinia'
+import axios from 'axios'
+import router from '../router'
+import { API_URL } from '../config'
+
+axios.defaults.withCredentials = true
+
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    loading: false,
+    error: null
+  }),
+
+  getters: {
+    isLoggedIn: (state) => !!state.user,
+    isAdmin: (state) => state.user && state.user.role === 'admin',
+    isEditor: (state) => state.user && state.user.role === 'editor'
+  },
+
+  actions: {
+    async login(email, password) {
+      this.loading = true
+      this.error = null
+
+      try {
+        await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie')
+
+        const response = await axios.post(`${API_URL}/auth/login`, {
+          email,
+          password
+        })
+
+        this.user = response.data.user
+        if (this.user.role === 'admin' || this.user.role === 'editor') {
+          router.push('/dashboard')
+        } else {
+          router.push('/')
+        }
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.token)
+        router.push('/')
+        return true
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Login failed'
+        return false
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchCurrentUser() {
+      this.loading = true
+      try {
+        const response = await axios.get(`${API_URL}/auth/me`)
+        this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+        return this.user
+      } catch (error) {
+        this.logout()
+        return null
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async logout() {
+      try {
+        await axios.post(`${API_URL}/auth/logout`)
+      } catch (error) {
+        console.error('Logout error:', error)
+      } finally {
+        this.user = null
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        router.push('/login')
+      }
+    }
+  }
+})
