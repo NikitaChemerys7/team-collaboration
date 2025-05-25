@@ -27,4 +27,9 @@ class Conference extends Model
         'files' => 'array',
         'speakers' => 'array'
     ];
+
+    public function subpages()
+    {
+        return $this->hasMany(Subpage::class)->orderBy('order');
+    }
 }
