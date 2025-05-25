@@ -102,9 +102,6 @@
           :class="{ 'admin-user': user.role === 'admin' }"
         >
           <div class="user-info">
-            <div class="user-avatar">
-              <i class="fas fa-user"></i>
-            </div>
             <div class="user-details">
               <h3 class="user-name">{{ user.name }}</h3>
               <p class="user-email">{{ user.email }}</p>
@@ -443,18 +440,6 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.user-avatar {
-  width: 3rem;
-  height: 3rem;
-  background-color: #f3f4f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-  font-size: 1.25rem;
 }
 
 .user-details {

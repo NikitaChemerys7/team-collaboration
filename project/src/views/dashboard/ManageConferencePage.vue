@@ -408,6 +408,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.mb-8 {
+  margin-bottom: var(--spacing-xl);
+}
+
 .manage-conference {
   min-height: 100vh;
   background-color: var(--color-background);

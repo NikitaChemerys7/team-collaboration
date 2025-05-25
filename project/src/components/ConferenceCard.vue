@@ -15,7 +15,7 @@
                     {{ conference.location }}
                 </p>
             </div>
-            <p class="description">{{ truncateDescription(conference.description) }}</p>
+            <p class="description" v-html="truncateDescription(conference.description)"></p>
             <router-link :to="`/conference/${conference.id}`" class="view-details">
                 View Details
                 <i class="fas fa-arrow-right"></i>
