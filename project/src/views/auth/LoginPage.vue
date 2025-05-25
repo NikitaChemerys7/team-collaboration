@@ -60,11 +60,6 @@
       </form>
       
       <div class="login-footer">
-        <p>
-          This login is for administrators and editors only.
-          <br />
-          If you need access, please contact the system administrator.
-        </p>
       </div>
     </div>
   </div>
