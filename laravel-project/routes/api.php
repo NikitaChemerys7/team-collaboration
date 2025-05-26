@@ -6,18 +6,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\SubpageController;
 
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/register', [AuthController::class, 'register']);
-
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     // Conference routes
     Route::apiResource('conferences', ConferenceController::class);
-    
-    // Subpage routes
-    Route::apiResource('subpages', SubpageController::class);
+    Route::middleware(['role:editor', 'can.manage.conference'])->group(function () {
+        Route::get('/conferences/{conference}/edit', [ConferenceController::class, 'edit']);
+        Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
+    });
 
     Route::middleware('role:admin')->group(function () {
         // User management routes
@@ -25,5 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users', [AuthController::class, 'createUser']);
         Route::put('/users/{id}', [AuthController::class, 'updateUser']);
         Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
+        Route::get('/conferences/{conference}/editors', [ConferenceController::class, 'getEditors']);
+        Route::post('/conferences/{conference}/assign-editor', [ConferenceController::class, 'assignEditor']);
+        Route::post('/conferences/{conference}/remove-editor', [ConferenceController::class, 'removeEditor']);
     });
 });

@@ -15,18 +15,25 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!auth()->check()) {
-            return redirect('/')->with('error', 'Please login first');
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized. Please login first.'
+            ], 401);
         }
 
-        $user = auth()->user();
-        
+
         if ($role === 'admin' && !$user->isAdmin()) {
-            return redirect('/')->with('error', 'Access denied. Admin privileges required.');
+            return response()->json([
+                'message' => 'Access denied. Admin privileges required.'
+            ], 403);
         }
-        
+
         if ($role === 'editor' && !($user->isEditor() || $user->isAdmin())) {
-            return redirect('/')->with('error', 'Access denied. Editor privileges required.');
+            return response()->json([
+                'message' => 'Access denied. Editor privileges required.'
+            ], 403);
         }
 
         return $next($request);
