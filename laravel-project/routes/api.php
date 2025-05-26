@@ -6,8 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConferenceController;
 use App\Http\Controllers\SubpageController;
 
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/register', [AuthController::class, 'register']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
