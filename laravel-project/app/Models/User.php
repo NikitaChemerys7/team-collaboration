@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; 
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
@@ -37,12 +37,27 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
-    
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function managedConferences()
+    {
+        return $this->belongsToMany(
+            \App\Models\Conference::class,
+            'user_manages_conferences',
+            'user_id',
+            'conference_id'
+        );
+    }
+
+    public function canManageConference($conferenceId)
+    {
+        return $this->isAdmin() || $this->managedConferences()->where('conference_id', $conferenceId)->exists();
     }
 }

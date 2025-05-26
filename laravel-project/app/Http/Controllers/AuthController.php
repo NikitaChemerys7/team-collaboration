@@ -9,6 +9,22 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
+    /**
+     * @group Authentication
+     *
+     * Get current authenticated user
+     *
+     * @authenticated
+     *
+     * @response {
+     *   "id": 1,
+     *   "name": "Admin User",
+     *   "email": "admin@example.com",
+     *   "role": "admin"
+     * }
+     */
+
+
     public function login(Request $request)
     {
         $request->validate([

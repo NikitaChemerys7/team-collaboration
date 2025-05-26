@@ -6,21 +6,22 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckRole
+class CanManageConference
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || $request->user()->role !== $role) {
-            return response()->json([
-                'message' => 'Unauthorized. Insufficient permissions.'
-            ], 403);
+        $user = auth()->user();
+        $conferenceId = $request->route('conference');
+        
+        if (!$user || !$user->canManageConference($conferenceId)) {
+            return response()->json(['error' => 'Access denied'], 403);
         }
 
         return $next($request);
     }
-} 
+}
