@@ -117,13 +117,20 @@ export default {
           password_confirmation: this.confirmPassword
         })
 
-        await this.authStore.login(this.email, this.password)
-        this.$router.push('/dashboard')
+        this.$router.push(`/email-verification-waiting?email=${encodeURIComponent(this.email)}`)
 
       } catch (error) {
-          if (error.response && error.response.data.errors) {
+
+        if (error.response) {
+          if (error.response.data.errors) {
             const errors = error.response.data.errors
             this.error = Object.values(errors).flat().join(' ')
+          }
+          else if (error.response.data.message) {
+            this.error = error.response.data.message
+          } else {
+              this.error = 'Registration failed. Please try again.'
+            }
           } else {
             this.error = 'Registration failed. Please try again.'
           }

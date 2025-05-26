@@ -1,14 +1,21 @@
 <template>
   <div class="login-page">
     <div class="login-container">
-      <h1 class="login-title">Welcome Back</h1>
-      
-      <div v-if="authStore.error" class="error-message">
-        {{ authStore.error }}
-        <button class="error-close" @click="authStore.clearError">×</button>
+      <h1 class="login-title">Forgot your password?</h1>
+      <p class="login-subtitle">
+        Enter your email and we’ll send you a link to reset and change your password.
+      </p>
+
+      <div v-if="successMessage" class="success-message">
+        {{ successMessage }}
       </div>
-      
-      <form @submit.prevent="handleLogin" class="login-form">
+
+      <div v-if="error" class="error-message">
+        {{ error }}
+        <button class="error-close" @click="error = ''">×</button>
+      </div>
+
+      <form @submit.prevent="handleSubmit" class="login-form" v-if="!successMessage">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
           <input
@@ -18,79 +25,62 @@
             class="form-control"
             placeholder="Enter your email"
             required
-            autocomplete="username"
-            :disabled="authStore.loading"
+            :disabled="loading"
+            autocomplete="email"
           />
         </div>
-        
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <div class="password-input">
-            <input
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              v-model="password"
-              class="form-control"
-              placeholder="Enter your password"
-              required
-              autocomplete="current-password"
-              :disabled="authStore.loading"
-            />
-            <button
-              type="button"
-              class="toggle-password"
-              @click="showPassword = !showPassword"
-              :disabled="authStore.loading"
-            >
-              {{ showPassword ? '👁' : '👁️‍🗨️' }}
-            </button>
-          </div>
-        </div>
-        
+
         <div class="form-actions">
           <button
             type="submit"
             class="btn btn-primary btn-block"
-            :disabled="authStore.loading"
+            :disabled="loading"
           >
-            <span v-if="authStore.loading">Logging in...</span>
-            <span v-else>Log In</span>
+            <span v-if="loading">Sending...</span>
+            <span v-else>Send Reset Link</span>
           </button>
         </div>
       </form>
-      
+
       <div class="login-footer">
-          <router-link to="/forgot-password" class="forgot-password-link">
-           Forgot your password?
-          </router-link>
+        <router-link to="/login" class="forgot-password-link">
+          Back to login
+        </router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'pinia'
-import { useAuthStore } from '../../stores/auth'
+import axios from 'axios'
 
 export default {
-  name: 'LoginPage',
+  name: 'ForgotPasswordPage',
   data() {
     return {
       email: '',
-      password: '',
-      showPassword: false
-    }
-  },
-  computed: {
-    authStore() {
-      return useAuthStore()
+      loading: false,
+      error: '',
+      successMessage: ''
     }
   },
   methods: {
-    async handleLogin() {
-      if (!this.email || !this.password) return
-      
-      await this.authStore.login(this.email, this.password)
+    async handleSubmit() {
+      this.loading = true
+      this.error = ''
+      try {
+        await axios.post('http://127.0.0.1:8000/api/password/email', {
+          email: this.email
+        })
+        this.successMessage = 'Reset link has been sent to your email.'
+        setTimeout(() => {
+          this.$router.push('/login')
+        }, 2500)
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Failed to send reset link.'
+      } finally {
+        this.loading = false
+      }
     }
   }
 }
@@ -132,6 +122,12 @@ export default {
   margin-bottom: var(--spacing-xl);
 }
 
+.login-subtitle {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-secondary);
+}
+
 .error-message {
   background-color: rgba(244, 67, 54, 0.1);
   color: var(--color-error);
@@ -151,28 +147,25 @@ export default {
   cursor: pointer;
 }
 
-.login-form {
-  margin-bottom: var(--spacing-xl);
-}
-
 .form-group {
   margin-bottom: var(--spacing-lg);
 }
 
-.password-input {
-  position: relative;
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: bold;
 }
 
-.toggle-password {
-  position: absolute;
-  right: var(--spacing-md);
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  color: var(--color-text-secondary);
+.form-control {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.form-actions {
+  margin-top: var(--spacing-lg);
 }
 
 .btn-block {
@@ -184,7 +177,9 @@ export default {
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
+  margin-top: var(--spacing-lg);
 }
+
 .forgot-password-link {
   color: var(--color-primary);
   text-decoration: none;

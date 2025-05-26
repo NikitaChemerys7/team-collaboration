@@ -13,6 +13,7 @@ import NotFoundPage from '../views/NotFoundPage.vue'
 // Auth pages
 import LoginPage from '../views/auth/LoginPage.vue'
 import RegistrationPage from '../views/auth/RegistrationPage.vue'
+import ResetPasswordPage from '../views/auth/ResetPasswordPage.vue'
 
 // Admin & Editor pages
 import DashboardPage from '../views/dashboard/DashboardPage.vue'
@@ -120,7 +121,22 @@ const routes = [
     name: 'not-found',
     component: NotFoundPage,
     meta: { title: 'Page Not Found' }
-  }
+  },
+  {
+    path: '/email-verification-waiting',
+    name: 'EmailVerificationWaiting',
+    component: () => import('../views/auth/EmailVerificationWaitingPage.vue')
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPasswordPage',
+    component: () => import('../views/auth/ForgotPasswordPage.vue')
+  },
+  {
+    path: '/reset-password/:token',
+    name: 'ResetPasswordPage',
+    component: ResetPasswordPage
+  },
 ]
 
 const router = createRouter({
