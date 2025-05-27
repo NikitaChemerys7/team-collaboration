@@ -21,3 +21,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+# Scribe generated docs (API documentation)
+.scribe/
+public/vendor/scribe/
+resources/views/scribe/

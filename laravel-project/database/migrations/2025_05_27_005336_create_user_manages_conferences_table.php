@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subpages', function (Blueprint $table) {
+        Schema::create('user_manages_conferences', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('conference_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->text('content');
-            $table->string('slug')->unique();
-            $table->integer('order')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->timestamp('granted_at')->nullable();
+            $table->foreignId('granted_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subpages');
+        Schema::dropIfExists('user_manages_conferences');
     }
 };
