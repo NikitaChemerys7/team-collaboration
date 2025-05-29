@@ -13,7 +13,7 @@ export const useSubpageStore = defineStore('subpage', {
   
   getters: {
     getSubpagesByConferenceId: (state) => (conferenceId) => {
-      return state.subpages.filter(sp => sp.conferenceId === conferenceId)
+      return state.subpages.filter(sp => sp.conference_id === conferenceId)
     },
     getSubpageById: (state) => (id) => {
       return state.subpages.find(sp => sp.id === id)
@@ -22,28 +22,21 @@ export const useSubpageStore = defineStore('subpage', {
   
   actions: {
     async fetchSubpages(conferenceId) {
+      if (!conferenceId) {
+        this.error = 'Conference ID is required'
+        return []
+      }
+
       this.loading = true
       this.error = null
       
       try {
         const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`)
-        const newSubpages = response.data
-        
-        const existingIds = this.subpages
-          .filter(sp => sp.conferenceId === conferenceId)
-          .map(sp => sp.id)
-        
-        const uniqueNewSubpages = newSubpages.filter(sp => !existingIds.includes(sp.id))
-        
-        this.subpages = [
-          ...this.subpages.filter(sp => sp.conferenceId !== conferenceId),
-          ...newSubpages
-        ]
-        
+        this.subpages = response.data
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch subpages'
         console.error('Error fetching subpages:', error)
+        this.error = error.response?.data?.message || 'Failed to fetch subpages'
         return []
       } finally {
         this.loading = false
@@ -51,108 +44,100 @@ export const useSubpageStore = defineStore('subpage', {
     },
     
     async fetchSubpage(conferenceId, subpageId) {
+      if (!conferenceId) {
+        this.error = 'Conference ID is required'
+        return null
+      }
+
+      if (subpageId === 'new') {
+        return null
+      }
+
       this.loading = true
       this.error = null
-      
       try {
         const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
         this.currentSubpage = response.data
-        
-        const index = this.subpages.findIndex(sp => sp.id === subpageId)
-        if (index !== -1) {
-          this.subpages[index] = response.data
-        } else {
-          this.subpages.push(response.data)
-        }
-        
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch subpage'
-        console.error('Error fetching subpage:', error)
-        return null
+        throw error
       } finally {
         this.loading = false
       }
     },
     
     async createSubpage(conferenceId, subpageData) {
+      if (!conferenceId) {
+        this.error = 'Conference ID is required'
+        return null
+      }
+
       this.loading = true
       this.error = null
-      
-      const authStore = useAuthStore()
-      
       try {
-        const response = await axios.post(
-          `${API_URL}/conferences/${conferenceId}/subpages`,
-          subpageData,
-          { headers: authStore.authHeader }
-        )
-        
+        const response = await axios.post(`${API_URL}/conferences/${conferenceId}/subpages`, subpageData)
         this.subpages.push(response.data)
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to create subpage'
-        console.error('Error creating subpage:', error)
-        return null
+        throw error
       } finally {
         this.loading = false
       }
     },
     
     async updateSubpage(conferenceId, subpageId, subpageData) {
+      if (!conferenceId || !subpageId) {
+        this.error = 'Conference ID and Subpage ID are required'
+        return null
+      }
+
       this.loading = true
       this.error = null
-      
-      const authStore = useAuthStore()
       
       try {
         const response = await axios.put(
           `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
           subpageData,
-          { headers: authStore.authHeader }
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          }
         )
+        
+        this.currentSubpage = response.data
+        
         const index = this.subpages.findIndex(sp => sp.id === subpageId)
         if (index !== -1) {
           this.subpages[index] = response.data
         }
         
-        if (this.currentSubpage && this.currentSubpage.id === subpageId) {
-          this.currentSubpage = response.data
-        }
-        
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update subpage'
-        console.error('Error updating subpage:', error)
-        return null
+        throw error
       } finally {
         this.loading = false
       }
     },
     
     async deleteSubpage(conferenceId, subpageId) {
+      if (!conferenceId || !subpageId) {
+        this.error = 'Conference ID and Subpage ID are required'
+        return
+      }
+
       this.loading = true
       this.error = null
-      
-      const authStore = useAuthStore()
-      
       try {
-        await axios.delete(
-          `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
-          { headers: authStore.authHeader }
-        )
-      
+        await axios.delete(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
         this.subpages = this.subpages.filter(sp => sp.id !== subpageId)
-        
-        if (this.currentSubpage && this.currentSubpage.id === subpageId) {
-          this.currentSubpage = null
-        }
-        
-        return true
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete subpage'
-        console.error('Error deleting subpage:', error)
-        return false
+        throw error
       } finally {
         this.loading = false
       }

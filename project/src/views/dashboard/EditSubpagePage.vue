@@ -1,14 +1,14 @@
 <template>
   <div class="edit-subpage-page">
     <div class="page-header">
-      <h1>{{ isEditing ? 'Edit Subpage' : 'Create New Subpage' }}</h1>
-      <div class="page-actions">
+      <div class="header-left">
         <router-link
-          :to="{ name: 'manage-subpages', params: { conferenceId } }"
-          class="btn btn-outline"
+          :to="{ name: 'manage-subpages' }"
+          class="btn btn-outline back-button"
         >
-          Cancel
+          <i class="fas fa-arrow-left"></i> Back
         </router-link>
+        <h1>{{ isEditing ? 'Edit Subpage' : 'Create New Subpage' }}</h1>
       </div>
     </div>
     
@@ -18,9 +18,28 @@
       :message="error"
       @close="clearError"
     />
-    
-    <div class="card">
-      <form @submit.prevent="saveSubpage" class="subpage-form">
+
+    <div v-if="!selectedConferenceId" class="conference-selector">
+      <label for="conference-select" class="form-label">Select Conference</label>
+      <select
+        id="conference-select"
+        v-model="selectedConferenceId"
+        class="form-control"
+        @change="handleConferenceChange"
+      >
+        <option value="">Select a conference...</option>
+        <option
+          v-for="conference in conferences"
+          :key="conference.id"
+          :value="conference.id"
+        >
+          {{ conference.title }}
+        </option>
+      </select>
+    </div>
+
+    <div v-else class="card">
+      <form @submit.prevent="handleSubmit" class="subpage-form">
         <div class="form-group">
           <label for="title" class="form-label">Title</label>
           <input
@@ -34,36 +53,11 @@
         </div>
         
         <div class="form-group">
-          <label for="slug" class="form-label">
-            Slug 
-            <span class="form-help">(URL-friendly identifier)</span>
-          </label>
-          <div class="slug-input">
-            <input
-              type="text"
-              id="slug"
-              v-model="form.slug"
-              class="form-control"
-              required
-              :disabled="loading"
-            />
-            <button
-              type="button"
-              class="generate-slug"
-              @click="generateSlug"
-              :disabled="!form.title || loading"
-            >
-              Generate from title
-            </button>
-          </div>
-        </div>
-        
-        <div class="form-group">
           <label class="form-label">Content</label>
           <WysiwygEditor
             :value="form.content"
             @update:value="updateContent"
-            :conference-id="conferenceId"
+            :conference-id="String(selectedConferenceId)"
             :subpage-id="subpageId || 'temp'"
             :disabled="loading"
           />
@@ -92,7 +86,12 @@
         </div>
         
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" :disabled="loading || !isFormValid">
+          <button 
+            type="submit" 
+            class="btn btn-primary" 
+            :disabled="loading || !isFormValid"
+            @click="handleSubmit"
+          >
             {{ isEditing ? 'Update Subpage' : 'Create Subpage' }}
           </button>
         </div>
@@ -118,18 +117,18 @@ export default {
     return {
       form: {
         title: '',
-        slug: '',
         content: '',
         order: 0,
         isPublished: true
       },
       loading: false,
-      error: null
+      error: null,
+      selectedConferenceId: ''
     }
   },
   computed: {
     ...mapState(useSubpageStore, ['currentSubpage']),
-    ...mapState(useConferenceStore, ['currentConference']),
+    ...mapState(useConferenceStore, ['conferences']),
     
     conferenceId() {
       return this.$route.params.conferenceId
@@ -140,13 +139,20 @@ export default {
     },
     
     isEditing() {
-      return !!this.subpageId
+      return this.subpageId && this.subpageId !== 'new'
     },
     
     isFormValid() {
-      return this.form.title && 
-             this.form.slug && 
-             this.form.content
+      const isValid = this.form.title && 
+             this.form.content &&
+             this.selectedConferenceId
+      console.log('Form validation:', {
+        title: this.form.title,
+        content: this.form.content,
+        conferenceId: this.selectedConferenceId,
+        isValid
+      })
+      return isValid
     }
   },
   methods: {
@@ -156,46 +162,80 @@ export default {
       'updateSubpage',
       'clearError'
     ]),
-    ...mapActions(useConferenceStore, ['fetchConferenceById']),
+    ...mapActions(useConferenceStore, ['fetchConferences']),
     
     updateContent(content) {
       this.form.content = content
     },
     
-    generateSlug() {
-      if (!this.form.title) return
-      
-      const slug = this.form.title
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '')
-      
-      this.form.slug = slug
+    async handleConferenceChange() {
+      if (this.isEditing && this.selectedConferenceId) {
+        await this.loadSubpageData()
+      }
     },
     
-    async saveSubpage() {
-      if (!this.isFormValid) return
+    async loadSubpageData() {
+      if (!this.selectedConferenceId || !this.isEditing) return
+      
+      this.loading = true
+      try {
+        const subpage = await this.fetchSubpage(this.selectedConferenceId, this.subpageId)
+        if (subpage) {
+          this.form = {
+            title: subpage.title,
+            content: subpage.content,
+            order: subpage.order,
+            isPublished: subpage.is_published
+          }
+        }
+      } catch (error) {
+        this.error = 'Failed to load subpage data'
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async handleSubmit(event) {
+      console.log('Form submitted', {
+        event,
+        form: this.form,
+        isValid: this.isFormValid
+      })
+      
+      if (!this.isFormValid) {
+        console.log('Form is not valid')
+        return
+      }
       
       this.loading = true
       this.error = null
       
       try {
-        const subpageData = { ...this.form }
+        const subpageData = {
+          title: this.form.title,
+          content: this.form.content,
+          order: this.form.order,
+          is_published: this.form.isPublished
+        }
+        
+        console.log('Saving subpage with data:', subpageData)
         
         if (this.isEditing) {
-          await this.updateSubpage(this.conferenceId, this.subpageId, subpageData)
+          console.log('Updating existing subpage:', this.subpageId)
+          await this.updateSubpage(this.selectedConferenceId, this.subpageId, subpageData)
         } else {
-          await this.createSubpage(this.conferenceId, subpageData)
+          console.log('Creating new subpage')
+          await this.createSubpage(this.selectedConferenceId, subpageData)
         }
+        
+        console.log('Subpage saved successfully')
         
         this.$router.push({
           name: 'manage-subpages',
-          params: { conferenceId: this.conferenceId }
+          params: { conferenceId: this.selectedConferenceId }
         })
       } catch (error) {
+        console.error('Error saving subpage:', error)
         this.error = error.message || 'Failed to save subpage'
       } finally {
         this.loading = false
@@ -207,32 +247,23 @@ export default {
     }
   },
   async mounted() {
-    if (!this.currentConference || this.currentConference.id !== this.conferenceId) {
-      await this.fetchConferenceById(this.conferenceId)
-    }
+    console.log('Component mounted', {
+      conferenceId: this.conferenceId,
+      subpageId: this.subpageId,
+      isEditing: this.isEditing
+    })
     
-    if (this.isEditing) {
-      this.loading = true
-      try {
-        const subpage = await this.fetchSubpage(this.conferenceId, this.subpageId)
-        if (subpage) {
-          this.form = {
-            title: subpage.title,
-            slug: subpage.slug,
-            content: subpage.content,
-            order: subpage.order,
-            isPublished: subpage.isPublished
-          }
+    try {
+      await this.fetchConferences()
+      if (this.conferenceId && this.conferenceId !== 'list') {
+        this.selectedConferenceId = this.conferenceId
+        if (this.isEditing && this.subpageId !== 'list') {
+          await this.loadSubpageData()
         }
-      } catch (error) {
-        this.error = 'Failed to load subpage data'
-      } finally {
-        this.loading = false
       }
+    } catch (error) {
+      this.error = error.message || 'Failed to load conferences'
     }
-  },
-  beforeUnmount() {
-    this.clearError()
   }
 }
 </script>
@@ -265,31 +296,6 @@ export default {
   margin-top: var(--spacing-xs);
 }
 
-.slug-input {
-  display: flex;
-  gap: var(--spacing-md);
-}
-
-.generate-slug {
-  background-color: var(--color-secondary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  padding: 0 var(--spacing-md);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color var(--transition-fast);
-}
-
-.generate-slug:hover {
-  background-color: var(--color-secondary-light);
-}
-
-.generate-slug:disabled {
-  background-color: var(--color-text-secondary);
-  cursor: not-allowed;
-}
-
 .form-check {
   display: flex;
   align-items: center;
@@ -303,5 +309,82 @@ export default {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 0.5rem 1rem;
+}
+
+.back-button i {
+  font-size: 0.9rem;
+}
+
+.conference-selector {
+  margin-bottom: var(--spacing-lg);
+  max-width: 400px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 </style>

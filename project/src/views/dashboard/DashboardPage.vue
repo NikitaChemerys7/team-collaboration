@@ -20,7 +20,7 @@
       </router-link>
 
       <!-- Add Subpage -->
-      <router-link :to="{ name: 'manage-subpages', params: { conferenceId: 'new' }}" class="dashboard-card subpage-card">
+      <router-link to="/dashboard/conferences/new/subpages" class="dashboard-card subpage-card">
         <div class="card-content">
           <div class="card-icon document-icon">📄</div>
           <h3 class="card-title">Add Subpage</h3>
@@ -47,7 +47,7 @@
       </router-link>
 
       <!-- Edit Subpages -->
-      <router-link :to="{ name: 'edit-subpage', params: { conferenceId: 'list', subpageId: 'list' }}" class="dashboard-card edit-card">
+      <router-link to="/dashboard/conferences/all/subpages" class="dashboard-card edit-card">
         <div class="card-content">
           <div class="card-icon edit-icon">✏️</div>
           <h3 class="card-title">Edit Subpages</h3>

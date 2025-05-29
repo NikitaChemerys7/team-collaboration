@@ -96,16 +96,22 @@ const routes = [
     meta: { title: 'Manage Users', requiresAuth: true, roles: ['admin'] }
   },
   {
-    path: '/manage-subpages/:conferenceId',
+    path: '/dashboard/conferences/:conferenceId/subpages',
     name: 'manage-subpages',
-    component: ManageSubpagesPage,
-    meta: { title: 'Manage Subpages', requiresAuth: true }
+    component: () => import('../views/dashboard/ManageSubpagesPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
-    path: '/edit-subpage/:conferenceId/:subpageId?',
+    path: '/dashboard/conferences/:conferenceId/subpages/new',
+    name: 'create-subpage',
+    component: () => import('../views/dashboard/EditSubpagePage.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard/conferences/:conferenceId/subpages/:subpageId',
     name: 'edit-subpage',
-    component: EditSubpagePage,
-    meta: { title: 'Edit Subpage', requiresAuth: true }
+    component: () => import('../views/dashboard/EditSubpagePage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/:pathMatch(.*)*',

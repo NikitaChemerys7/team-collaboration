@@ -8,17 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ConferenceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
         return Conference::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -45,9 +41,7 @@ class ConferenceController extends Controller
         return response()->json($conference, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+   
     public function show(string $id)
     {
         $conference = Conference::find($id);
@@ -57,9 +51,7 @@ class ConferenceController extends Controller
         return $conference;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, string $id)
     {
         $conference = Conference::find($id);
@@ -91,9 +83,7 @@ class ConferenceController extends Controller
         return response()->json($conference);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(string $id)
     {
         $conference = Conference::find($id);

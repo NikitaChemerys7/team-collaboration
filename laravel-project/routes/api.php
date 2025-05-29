@@ -20,6 +20,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
     });
 
+    // Subpage routes
+    Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
+    Route::post('/conferences/{conferenceId}/subpages', [SubpageController::class, 'store']);
+    Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'show']);
+    Route::put('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'update']);
+    Route::delete('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'destroy']);
 
     Route::middleware('role:admin')->group(function () {
         // User management routes

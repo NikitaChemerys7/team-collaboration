@@ -92,6 +92,22 @@
             </a>
           </div>
         </div>
+
+        <!-- Subpages Section -->
+        <div v-if="subpages.length" class="subpages-section">
+          <h2>Additional Information</h2>
+          <div class="subpages-grid">
+            <router-link 
+              v-for="subpage in subpages" 
+              :key="subpage.id"
+              :to="{ name: 'subpage', params: { conferenceId: conference.id, subpageId: subpage.id }}"
+              class="subpage-card"
+            >
+              <h3>{{ subpage.title }}</h3>
+              <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
+            </router-link>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -119,15 +135,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConferenceStore } from '../stores/conference'
+import { useSubpageStore } from '../stores/subpage'
 
 const route = useRoute()
 const router = useRouter()
 const store = useConferenceStore()
+const subpageStore = useSubpageStore()
 
 const showGallery = ref(false)
 const currentImageIndex = ref(0)
 
 const conference = computed(() => store.currentConference)
+const subpages = computed(() => subpageStore.subpages)
 
 const heroStyle = computed(() => ({
   backgroundImage: conference.value?.hero_image 
@@ -170,6 +189,13 @@ async function fetchConference() {
     return
   }
   await store.fetchConferenceById(id)
+  await subpageStore.fetchSubpages(id)
+}
+
+function truncateContent(content) {
+  if (!content) return ''
+  const strippedContent = content.replace(/<[^>]*>/g, '')
+  return strippedContent.length > 150 ? strippedContent.substring(0, 150) + '...' : strippedContent
 }
 
 onMounted(fetchConference)
@@ -232,7 +258,8 @@ onMounted(fetchConference)
 .description-section,
 .speakers-section,
 .gallery-section,
-.documents-section {
+.documents-section,
+.subpages-section {
   margin-bottom: var(--spacing-xl);
 }
 
@@ -332,7 +359,7 @@ h2 {
   background-color: var(--color-primary-light);
 }
 
-/* Gallery Modal */
+
 .gallery-modal {
   position: fixed;
   top: 0;
@@ -384,7 +411,6 @@ h2 {
   right: var(--spacing-lg);
 }
 
-/* Loading, Error, and Not Found States */
 .loading-state,
 .error-state,
 .not-found {
@@ -453,5 +479,58 @@ h2 {
 
 .description-content :deep(em) {
   font-style: italic;
+}
+
+/* Subpages Section */
+.subpages-section {
+  margin-top: var(--spacing-xl);
+}
+
+.subpages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.subpage-card {
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+}
+
+.subpage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.subpage-card h3 {
+  color: var(--color-primary);
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.read-more {
+  color: var(--color-primary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-md);
+}
+
+.read-more i {
+  transition: transform var(--transition-fast);
+}
+
+.subpage-card:hover .read-more i {
+  transform: translateX(4px);
 }
 </style>
