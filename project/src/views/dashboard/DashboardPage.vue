@@ -54,6 +54,14 @@
           <p class="card-description">Edit or delete conference subpages</p>
         </div>
       </router-link>
+        <!-- Mail -->
+      <router-link to="/dashboard/mail" class="dashboard-card mail-card" v-if="isAdmin">
+          <div class="card-content">
+          <div class="card-icon mail-icon">✉️</div>
+          <h3 class="card-title">Send Mail</h3>
+          <p class="card-description">Send email messages to users and editors</p>
+        </div>
+      </router-link>
 
       <!-- Statistics Card -->
       <div class="dashboard-card stats-card">

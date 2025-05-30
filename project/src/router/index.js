@@ -21,6 +21,8 @@ import ManageConferencePage from '../views/dashboard/ManageConferencePage.vue'
 import ManageUsersPage from '../views/dashboard/ManageUsersPage.vue'
 import ManageSubpagesPage from '../views/dashboard/ManageSubpagesPage.vue'
 import EditSubpagePage from '../views/dashboard/EditSubpagePage.vue'
+import MailPage from '../views/dashboard/MailPage.vue'
+
 
 const routes = [
   {
@@ -137,6 +139,12 @@ const routes = [
     name: 'ResetPasswordPage',
     component: ResetPasswordPage
   },
+  {
+    path: '/dashboard/mail',
+    name: 'mail',
+    component: MailPage,
+    meta: { title: 'Send Mail', requiresAuth: true, roles: ['admin'] }
+  }
 ]
 
 const router = createRouter({
