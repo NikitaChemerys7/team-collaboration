@@ -1,5 +1,6 @@
 <template>
   <div class="manage-subpages-page">
+<<<<<<< HEAD
     <div class="page-header">
       <div class="header-left">
         <router-link
@@ -89,10 +90,15 @@
         </div>
       </div>
     </template>
+=======
+    <h1>Manage Subpages</h1>
+    <p>Add, edit, or remove conference subpages.</p>
+>>>>>>> settings-update-3
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
 import { mapState, mapActions } from 'pinia'
 import { useSubpageStore } from '../../stores/subpage'
 import { useConferenceStore } from '../../stores/conference'
@@ -191,11 +197,16 @@ export default {
       this.error = error.message || 'Failed to load conferences'
     }
   }
+=======
+export default {
+  name: 'ManageSubpagesPage'
+>>>>>>> settings-update-3
 }
 </script>
 
 <style scoped>
 .manage-subpages-page {
+<<<<<<< HEAD
   animation: fadeIn 0.4s ease;
 }
 
@@ -351,5 +362,8 @@ export default {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-light);
+=======
+  padding: var(--spacing-lg);
+>>>>>>> settings-update-3
 }
 </style>

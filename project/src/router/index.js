@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
+<<<<<<< HEAD
+=======
+// Public pages
+>>>>>>> settings-update-3
 import HomePage from '../views/HomePage.vue'
 import AboutPage from '../views/AboutPage.vue'
 import ConferencesPage from '../views/ConferencesPage.vue'
@@ -9,9 +13,18 @@ import SubpagePage from '../views/SubpagePage.vue'
 import ContactPage from '../views/ContactPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
+<<<<<<< HEAD
 import LoginPage from '../views/auth/LoginPage.vue'
 import RegistrationPage from '../views/auth/RegistrationPage.vue'
 
+=======
+// Auth pages
+import LoginPage from '../views/auth/LoginPage.vue'
+import RegistrationPage from '../views/auth/RegistrationPage.vue'
+import ResetPasswordPage from '../views/auth/ResetPasswordPage.vue'
+
+// Admin & Editor pages
+>>>>>>> settings-update-3
 import DashboardPage from '../views/dashboard/DashboardPage.vue'
 import ProfilePage from '../views/dashboard/ProfilePage.vue'
 import ManageConferencePage from '../views/dashboard/ManageConferencePage.vue'
@@ -20,6 +33,10 @@ import ManageSubpagesPage from '../views/dashboard/ManageSubpagesPage.vue'
 import EditSubpagePage from '../views/dashboard/EditSubpagePage.vue'
 
 const routes = [
+<<<<<<< HEAD
+=======
+  // Public routes
+>>>>>>> settings-update-3
   {
     path: '/',
     name: 'home',
@@ -118,7 +135,22 @@ const routes = [
     name: 'not-found',
     component: NotFoundPage,
     meta: { title: 'Page Not Found' }
-  }
+  },
+  {
+    path: '/email-verification-waiting',
+    name: 'EmailVerificationWaiting',
+    component: () => import('../views/auth/EmailVerificationWaitingPage.vue')
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPasswordPage',
+    component: () => import('../views/auth/ForgotPasswordPage.vue')
+  },
+  {
+    path: '/reset-password/:token',
+    name: 'ResetPasswordPage',
+    component: ResetPasswordPage
+  },
 ]
 
 const router = createRouter({
@@ -133,20 +165,38 @@ const router = createRouter({
   }
 })
 
+<<<<<<< HEAD
 router.beforeEach((to, from, next) => {
+=======
+// Global navigation guard
+router.beforeEach((to, from, next) => {
+  // Update document title
+>>>>>>> settings-update-3
   document.title = `${to.meta.title || 'Page'} | University Consortium CMS`
   
   const authStore = useAuthStore()
   const { isLoggedIn, user } = authStore
   
+<<<<<<< HEAD
+=======
+  // Redirect logged in users away from login page
+>>>>>>> settings-update-3
   if (to.meta.publicOnly && isLoggedIn) {
     return next('/')
   }
   
+<<<<<<< HEAD
+=======
+  // Check if route requires authentication
+>>>>>>> settings-update-3
   if (to.meta.requiresAuth && !isLoggedIn) {
     return next('/login')
   }
   
+<<<<<<< HEAD
+=======
+  // Check role requirements
+>>>>>>> settings-update-3
   if (to.meta.roles && isLoggedIn) {
     const hasRequiredRole = to.meta.roles.includes(user.role)
     if (!hasRequiredRole) {

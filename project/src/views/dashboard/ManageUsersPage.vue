@@ -1,5 +1,6 @@
 <template>
   <div class="manage-users-page">
+<<<<<<< HEAD
     <div class="page-header">
       <router-link to="/dashboard" class="back-link">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -127,10 +128,15 @@
     <div v-if="message" class="message" :class="messageType">
       {{ message }}
     </div>
+=======
+    <h1>Manage Users</h1>
+    <p>Add, edit, or remove system users.</p>
+>>>>>>> settings-update-3
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -282,10 +288,16 @@ export default defineComponent({
     }
   }
 })
+=======
+export default {
+  name: 'ManageUsersPage'
+}
+>>>>>>> settings-update-3
 </script>
 
 <style scoped>
 .manage-users-page {
+<<<<<<< HEAD
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -546,5 +558,8 @@ export default defineComponent({
   .users-grid {
     grid-template-columns: 1fr;
   }
+=======
+  padding: var(--spacing-lg);
+>>>>>>> settings-update-3
 }
 </style>
