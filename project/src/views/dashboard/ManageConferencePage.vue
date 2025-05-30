@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
   <div class="manage-conference flex h-full">
     <!-- Sidebar -->
     <aside class="sidebar bg-gray-50 p-8 w-72 flex-shrink-0 border-r">
@@ -652,22 +651,5 @@ onMounted(async () => {
 
 .tinymce-editor :deep(.tox-tinymce) {
   border: none !important;
-=======
-  <div class="manage-conference-page">
-    <h1>Manage Conference</h1>
-    <p>Add or edit conference details.</p>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'ManageConferencePage'
-}
-</script>
-
-<style scoped>
-.manage-conference-page {
-  padding: var(--spacing-lg);
->>>>>>> settings-update-3
 }
 </style>
