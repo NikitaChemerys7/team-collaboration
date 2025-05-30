@@ -1,7 +1,6 @@
 <template>
   <div class="edit-subpage-page">
     <div class="page-header">
-<<<<<<< HEAD
       <div class="header-left">
         <router-link
           :to="{ name: 'manage-subpages' }"
@@ -10,16 +9,6 @@
           <i class="fas fa-arrow-left"></i> Back
         </router-link>
         <h1>{{ isEditing ? 'Edit Subpage' : 'Create New Subpage' }}</h1>
-=======
-      <h1>{{ isEditing ? 'Edit Subpage' : 'Create New Subpage' }}</h1>
-      <div class="page-actions">
-        <router-link
-          :to="{ name: 'manage-subpages', params: { conferenceId } }"
-          class="btn btn-outline"
-        >
-          Cancel
-        </router-link>
->>>>>>> settings-update-3
       </div>
     </div>
     
@@ -29,7 +18,6 @@
       :message="error"
       @close="clearError"
     />
-<<<<<<< HEAD
 
     <div v-if="!selectedConferenceId" class="conference-selector">
       <label for="conference-select" class="form-label">Select Conference</label>
@@ -52,11 +40,6 @@
 
     <div v-else class="card">
       <form @submit.prevent="handleSubmit" class="subpage-form">
-=======
-    
-    <div class="card">
-      <form @submit.prevent="saveSubpage" class="subpage-form">
->>>>>>> settings-update-3
         <div class="form-group">
           <label for="title" class="form-label">Title</label>
           <input
@@ -70,43 +53,11 @@
         </div>
         
         <div class="form-group">
-<<<<<<< HEAD
-=======
-          <label for="slug" class="form-label">
-            Slug 
-            <span class="form-help">(URL-friendly identifier)</span>
-          </label>
-          <div class="slug-input">
-            <input
-              type="text"
-              id="slug"
-              v-model="form.slug"
-              class="form-control"
-              required
-              :disabled="loading"
-            />
-            <button
-              type="button"
-              class="generate-slug"
-              @click="generateSlug"
-              :disabled="!form.title || loading"
-            >
-              Generate from title
-            </button>
-          </div>
-        </div>
-        
-        <div class="form-group">
->>>>>>> settings-update-3
           <label class="form-label">Content</label>
           <WysiwygEditor
             :value="form.content"
             @update:value="updateContent"
-<<<<<<< HEAD
             :conference-id="String(selectedConferenceId)"
-=======
-            :conference-id="conferenceId"
->>>>>>> settings-update-3
             :subpage-id="subpageId || 'temp'"
             :disabled="loading"
           />
@@ -135,16 +86,12 @@
         </div>
         
         <div class="form-actions">
-<<<<<<< HEAD
           <button 
             type="submit" 
             class="btn btn-primary" 
             :disabled="loading || !isFormValid"
             @click="handleSubmit"
           >
-=======
-          <button type="submit" class="btn btn-primary" :disabled="loading || !isFormValid">
->>>>>>> settings-update-3
             {{ isEditing ? 'Update Subpage' : 'Create Subpage' }}
           </button>
         </div>
