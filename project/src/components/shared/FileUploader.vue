@@ -77,7 +77,6 @@ export default {
       
       const file = files[0]
       
-      // Validate file type
       const fileExtension = file.name.split('.').pop().toLowerCase()
       const acceptedExtensions = this.acceptedFormats
         .split(',')
@@ -89,7 +88,6 @@ export default {
         return
       }
       
-      // Clear previous errors and set the new file
       this.error = null
       this.selectedFile = file
       this.$emit('file-selected', file)
@@ -109,21 +107,18 @@ export default {
         const formData = new FormData()
         formData.append('file', this.selectedFile)
         
-        // Add any additional data
         Object.entries(additionalData).forEach(([key, value]) => {
           formData.append(key, value)
         })
         
         const xhr = new XMLHttpRequest()
         
-        // Track upload progress
         xhr.upload.addEventListener('progress', (event) => {
           if (event.lengthComputable) {
             this.uploadProgress = Math.round((event.loaded / event.total) * 100)
           }
         })
         
-        // Create a promise to handle the XHR request
         const uploadPromise = new Promise((resolve, reject) => {
           xhr.open('POST', url)
           
@@ -141,7 +136,6 @@ export default {
         
         const response = await uploadPromise
         
-        // Reset the file input
         this.$refs.fileInput.value = ''
         this.selectedFile = null
         
@@ -154,7 +148,6 @@ export default {
       } finally {
         this.loading = false
         
-        // Hide progress after a short delay to show completion
         setTimeout(() => {
           this.progressVisible = false
         }, 1000)

@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
-// Public pages
 import HomePage from '../views/HomePage.vue'
 import AboutPage from '../views/AboutPage.vue'
 import ConferencesPage from '../views/ConferencesPage.vue'
@@ -10,11 +9,9 @@ import SubpagePage from '../views/SubpagePage.vue'
 import ContactPage from '../views/ContactPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
-// Auth pages
 import LoginPage from '../views/auth/LoginPage.vue'
 import RegistrationPage from '../views/auth/RegistrationPage.vue'
 
-// Admin & Editor pages
 import DashboardPage from '../views/dashboard/DashboardPage.vue'
 import ProfilePage from '../views/dashboard/ProfilePage.vue'
 import ManageConferencePage from '../views/dashboard/ManageConferencePage.vue'
@@ -23,7 +20,6 @@ import ManageSubpagesPage from '../views/dashboard/ManageSubpagesPage.vue'
 import EditSubpagePage from '../views/dashboard/EditSubpagePage.vue'
 
 const routes = [
-  // Public routes
   {
     path: '/',
     name: 'home',
@@ -62,7 +58,6 @@ const routes = [
   },
   { path: '/conference/:id', component: ConferenceDetailPage, props: true },
   
-  // Auth routes
   {
     path: '/login',
     name: 'login',
@@ -76,12 +71,11 @@ const routes = [
     meta: { title: 'Registration', publicOnly: true }
   },
   
-  // Protected routes
   {
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardPage,
-    meta: { title: 'Dashboard', requiresAuth: true }
+    meta: { title: 'Dashboard', requiresAuth: true, roles: ['admin', 'editor'] }
   },
   {
     path: '/profile',
@@ -102,19 +96,23 @@ const routes = [
     meta: { title: 'Manage Users', requiresAuth: true, roles: ['admin'] }
   },
   {
-    path: '/manage-subpages/:conferenceId',
+    path: '/dashboard/conferences/:conferenceId/subpages',
     name: 'manage-subpages',
-    component: ManageSubpagesPage,
-    meta: { title: 'Manage Subpages', requiresAuth: true }
+    component: () => import('../views/dashboard/ManageSubpagesPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
-    path: '/edit-subpage/:conferenceId/:subpageId?',
-    name: 'edit-subpage',
-    component: EditSubpagePage,
-    meta: { title: 'Edit Subpage', requiresAuth: true }
+    path: '/dashboard/conferences/:conferenceId/subpages/new',
+    name: 'create-subpage',
+    component: () => import('../views/dashboard/EditSubpagePage.vue'),
+    meta: { requiresAuth: true }
   },
-  
-  // 404 route
+  {
+    path: '/dashboard/conferences/:conferenceId/subpages/:subpageId',
+    name: 'edit-subpage',
+    component: () => import('../views/dashboard/EditSubpagePage.vue'),
+    meta: { requiresAuth: true }
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
@@ -135,29 +133,24 @@ const router = createRouter({
   }
 })
 
-// Global navigation guard
 router.beforeEach((to, from, next) => {
-  // Update document title
   document.title = `${to.meta.title || 'Page'} | University Consortium CMS`
   
   const authStore = useAuthStore()
   const { isLoggedIn, user } = authStore
   
-  // Redirect logged in users away from login page
   if (to.meta.publicOnly && isLoggedIn) {
-    return next('/dashboard')
+    return next('/')
   }
   
-  // Check if route requires authentication
   if (to.meta.requiresAuth && !isLoggedIn) {
     return next('/login')
   }
   
-  // Check role requirements
   if (to.meta.roles && isLoggedIn) {
     const hasRequiredRole = to.meta.roles.includes(user.role)
     if (!hasRequiredRole) {
-      return next('/dashboard')
+        return next('/')
     }
   }
   

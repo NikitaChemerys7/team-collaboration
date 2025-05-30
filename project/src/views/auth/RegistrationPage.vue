@@ -43,6 +43,7 @@
               class="form-control"
               placeholder="Choose a password"
               required
+              autocomplete="new-password"
             />
           </div>
         </div>
@@ -57,6 +58,7 @@
               class="form-control"
               placeholder="Repeat your password"
               required
+              autocomplete="new-password"
             />
           </div>
         </div>
@@ -80,6 +82,7 @@
 
 <script>
 import axios from 'axios'
+import { useAuthStore } from '../../stores/auth' 
 export default {
   name: 'RegistrationPage',
   data() {
@@ -89,6 +92,11 @@ export default {
       password: '',
       confirmPassword: '',
       error: ''
+    }
+  },
+  computed: {
+    authStore() {
+      return useAuthStore()
     }
   },
   methods: {
@@ -102,23 +110,23 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://127.0.0.1:8000/api/register', {
+        const response = await axios.post('http://127.0.0.1:8000/api/auth/register', {
           name: this.name,
           email: this.email,
           password: this.password,
           password_confirmation: this.confirmPassword
         })
 
-        alert('Registration successful!')
-        this.$router.push('/login')
+        await this.authStore.login(this.email, this.password)
+        this.$router.push('/dashboard')
 
       } catch (error) {
-        if (error.response && error.response.data.errors) {
-          const errors = error.response.data.errors
-          this.error = Object.values(errors).flat().join(' ')
-        } else {
-          this.error = 'Registration failed. Please try again.'
-        }
+          if (error.response && error.response.data.errors) {
+            const errors = error.response.data.errors
+            this.error = Object.values(errors).flat().join(' ')
+          } else {
+            this.error = 'Registration failed. Please try again.'
+          }
       }
     }
   }

@@ -18,6 +18,7 @@
             class="form-control"
             placeholder="Enter your email"
             required
+            autocomplete="username"
             :disabled="authStore.loading"
           />
         </div>
@@ -32,6 +33,7 @@
               class="form-control"
               placeholder="Enter your password"
               required
+              autocomplete="current-password"
               :disabled="authStore.loading"
             />
             <button
@@ -58,11 +60,6 @@
       </form>
       
       <div class="login-footer">
-        <p>
-          This login is for administrators and editors only.
-          <br />
-          If you need access, please contact the system administrator.
-        </p>
       </div>
     </div>
   </div>

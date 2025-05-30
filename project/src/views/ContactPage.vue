@@ -41,7 +41,6 @@ export default {
   },
   methods: {
     submitForm() {
-      // tu by si mohol integrovať API alebo len simulovať odoslanie
       this.submitted = true
       this.form = { name: '', email: '', message: '' }
     }

@@ -16,7 +16,7 @@
             <router-link to="/conferences">Conferences</router-link>
             <router-link to="/contact">Contact</router-link>
             <template v-if="isLoggedIn">
-              <router-link to="/dashboard">Dashboard</router-link>
+              <router-link v-if="isAdmin || isEditor" to="/dashboard">Dashboard</router-link>
               <div class="user-menu">
                 <button @click="toggleUserMenu" class="user-button">
                   {{ user.name }} <span class="arrow">▼</span>
@@ -58,7 +58,7 @@
         <router-link to="/conferences" @click="closeMobileMenu">Conferences</router-link>
         <router-link to="/contact" @click="closeMobileMenu">Contact</router-link>
         <template v-if="isLoggedIn">
-          <router-link to="/dashboard" @click="closeMobileMenu">Dashboard</router-link>
+          <router-link v-if="isAdmin || isEditor" to="/dashboard" @click="closeMobileMenu">Dashboard</router-link>
           <router-link to="/profile" @click="closeMobileMenu">Profile</router-link>
           <button @click="logout" class="mobile-logout">Logout</button>
         </template>
@@ -87,12 +87,18 @@ export default {
     ...mapState(useAuthStore, ['isLoggedIn', 'user']),
     ...mapState(useThemeStore, ['isDarkMode']),
     userRole() {
-      if (!this.user) return ''
+      if (!this.user || !this.user.role) return ''
       return this.user.role.charAt(0).toUpperCase() + this.user.role.slice(1)
     },
     userRoleClass() {
-      if (!this.user) return ''
+      if (!this.user || !this.user.role) return ''
       return `role-${this.user.role.toLowerCase()}`
+    },
+    isAdmin() {
+      return this.user && this.user.role === 'admin'
+    },
+    isEditor() {
+      return this.user && this.user.role === 'editor'
     }
   },
   methods: {
