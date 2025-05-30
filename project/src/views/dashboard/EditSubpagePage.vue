@@ -170,30 +170,18 @@ export default {
     return {
       form: {
         title: '',
-<<<<<<< HEAD
-=======
-        slug: '',
->>>>>>> settings-update-3
         content: '',
         order: 0,
         isPublished: true
       },
       loading: false,
-<<<<<<< HEAD
       error: null,
       selectedConferenceId: ''
-=======
-      error: null
->>>>>>> settings-update-3
     }
   },
   computed: {
     ...mapState(useSubpageStore, ['currentSubpage']),
-<<<<<<< HEAD
     ...mapState(useConferenceStore, ['conferences']),
-=======
-    ...mapState(useConferenceStore, ['currentConference']),
->>>>>>> settings-update-3
     
     conferenceId() {
       return this.$route.params.conferenceId
@@ -204,7 +192,6 @@ export default {
     },
     
     isEditing() {
-<<<<<<< HEAD
       return this.subpageId && this.subpageId !== 'new'
     },
     
@@ -219,15 +206,6 @@ export default {
         isValid
       })
       return isValid
-=======
-      return !!this.subpageId
-    },
-    
-    isFormValid() {
-      return this.form.title && 
-             this.form.slug && 
-             this.form.content
->>>>>>> settings-update-3
     }
   },
   methods: {
@@ -237,17 +215,12 @@ export default {
       'updateSubpage',
       'clearError'
     ]),
-<<<<<<< HEAD
     ...mapActions(useConferenceStore, ['fetchConferences']),
-=======
-    ...mapActions(useConferenceStore, ['fetchConferenceById']),
->>>>>>> settings-update-3
     
     updateContent(content) {
       this.form.content = content
     },
     
-<<<<<<< HEAD
     async handleConferenceChange() {
       if (this.isEditing && this.selectedConferenceId) {
         await this.loadSubpageData()
@@ -286,31 +259,11 @@ export default {
         console.log('Form is not valid')
         return
       }
-=======
-    generateSlug() {
-      if (!this.form.title) return
-      
-      // Convert title to lowercase, replace spaces with hyphens, remove special chars
-      const slug = this.form.title
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '')
-      
-      this.form.slug = slug
-    },
-    
-    async saveSubpage() {
-      if (!this.isFormValid) return
->>>>>>> settings-update-3
       
       this.loading = true
       this.error = null
       
       try {
-<<<<<<< HEAD
         const subpageData = {
           title: this.form.title,
           content: this.form.content,
@@ -336,22 +289,6 @@ export default {
         })
       } catch (error) {
         console.error('Error saving subpage:', error)
-=======
-        const subpageData = { ...this.form }
-        
-        if (this.isEditing) {
-          await this.updateSubpage(this.conferenceId, this.subpageId, subpageData)
-        } else {
-          await this.createSubpage(this.conferenceId, subpageData)
-        }
-        
-        // Navigate back to subpage management
-        this.$router.push({
-          name: 'manage-subpages',
-          params: { conferenceId: this.conferenceId }
-        })
-      } catch (error) {
->>>>>>> settings-update-3
         this.error = error.message || 'Failed to save subpage'
       } finally {
         this.loading = false
@@ -363,7 +300,6 @@ export default {
     }
   },
   async mounted() {
-<<<<<<< HEAD
     console.log('Component mounted', {
       conferenceId: this.conferenceId,
       subpageId: this.subpageId,
@@ -381,37 +317,6 @@ export default {
     } catch (error) {
       this.error = error.message || 'Failed to load conferences'
     }
-=======
-    // Load conference data
-    if (!this.currentConference || this.currentConference.id !== this.conferenceId) {
-      await this.fetchConferenceById(this.conferenceId)
-    }
-    
-    // If editing, load subpage data
-    if (this.isEditing) {
-      this.loading = true
-      try {
-        const subpage = await this.fetchSubpage(this.conferenceId, this.subpageId)
-        if (subpage) {
-          this.form = {
-            title: subpage.title,
-            slug: subpage.slug,
-            content: subpage.content,
-            order: subpage.order,
-            isPublished: subpage.isPublished
-          }
-        }
-      } catch (error) {
-        this.error = 'Failed to load subpage data'
-      } finally {
-        this.loading = false
-      }
-    }
-  },
-  beforeUnmount() {
-    // Clear any existing error
-    this.clearError()
->>>>>>> settings-update-3
   }
 }
 </script>
@@ -444,34 +349,6 @@ export default {
   margin-top: var(--spacing-xs);
 }
 
-<<<<<<< HEAD
-=======
-.slug-input {
-  display: flex;
-  gap: var(--spacing-md);
-}
-
-.generate-slug {
-  background-color: var(--color-secondary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  padding: 0 var(--spacing-md);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color var(--transition-fast);
-}
-
-.generate-slug:hover {
-  background-color: var(--color-secondary-light);
-}
-
-.generate-slug:disabled {
-  background-color: var(--color-text-secondary);
-  cursor: not-allowed;
-}
-
->>>>>>> settings-update-3
 .form-check {
   display: flex;
   align-items: center;
@@ -485,7 +362,6 @@ export default {
 .form-actions {
   display: flex;
   justify-content: flex-end;
-<<<<<<< HEAD
   margin-top: var(--spacing-lg);
 }
 
@@ -563,7 +439,5 @@ export default {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-light);
-=======
->>>>>>> settings-update-3
 }
 </style>
