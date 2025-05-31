@@ -94,7 +94,7 @@
             <router-link 
               v-for="subpage in subpages" 
               :key="subpage.id"
-              :to="{ name: 'subpage', params: { conferenceId: conference.id, subpageId: subpage.id }}"
+              :to="{ name: 'subpage', params: { conferenceId: conference.id, subpageId: subpage.slug }}"
               class="subpage-card"
             >
               <h3>{{ subpage.title }}</h3>
