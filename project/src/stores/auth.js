@@ -16,12 +16,13 @@ axios.interceptors.request.use(config => {
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
     loading: false,
     error: null
   }),
 
   getters: {
-    isLoggedIn: (state) => !!state.user,
+    isLoggedIn: (state) => !!state.token,
     isAdmin: (state) => state.user && state.user.role === 'admin',
     isEditor: (state) => state.user && state.user.role === 'editor'
   },
@@ -88,6 +89,48 @@ export const useAuthStore = defineStore('auth', {
     setUser(user) {
       this.user = user
       localStorage.setItem('user', JSON.stringify(user))
+    },
+
+    async getUsers() {
+      try {
+        const response = await axios.get(`${API_URL}/users`, {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          }
+        })
+        return response
+      } catch (error) {
+        console.error('Error fetching users:', error)
+        throw error
+      }
+    },
+
+    async updateUser(userId, userData) {
+      try {
+        const response = await axios.put(`${API_URL}/users/${userId}`, userData, {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          }
+        })
+        return response
+      } catch (error) {
+        console.error('Error updating user:', error)
+        throw error
+      }
+    },
+
+    async deleteUser(userId) {
+      try {
+        const response = await axios.delete(`${API_URL}/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          }
+        })
+        return response
+      } catch (error) {
+        console.error('Error deleting user:', error)
+        throw error
+      }
     }
   }
 })

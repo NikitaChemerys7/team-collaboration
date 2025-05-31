@@ -576,7 +576,7 @@ onMounted(async () => {
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: var(--color-error-dark);
+  background-color: darkred;
 }
 
 @keyframes spin {

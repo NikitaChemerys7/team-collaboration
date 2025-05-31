@@ -325,7 +325,7 @@ export default {
 
 
 .btn-danger:hover:not(:disabled) {
-  background-color: var(--color-danger-dark);
+  background-color: darkred;
 }
 
 .conference-selector {

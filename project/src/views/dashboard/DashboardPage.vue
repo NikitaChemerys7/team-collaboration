@@ -32,10 +32,19 @@
         </div>
       </router-link>
     </div>
-    <hr>
-    <h2>Users</h2>
-    <div class="dashboard-grid">
-      <router-link to="/manage-users?type=editor" class="dashboard-card editor-card" v-if="isAdmin">
+    
+    <hr v-if="isAdmin">
+    <h2 v-if="isAdmin">Users</h2>
+    <div class="dashboard-grid" v-if="isAdmin">
+      <router-link to="/dashboard/users" class="dashboard-card users-card">
+        <div class="card-content">
+          <div class="card-icon settings-icon">⚙️</div>
+          <h3 class="card-title">Manage Users</h3>
+          <p class="card-description">Manage user accounts and permissions</p>
+        </div>
+      </router-link>
+
+      <router-link to="/manage-users?type=editor" class="dashboard-card editor-card">
         <div class="card-content">
           <div class="card-icon users-icon">👥</div>
           <h3 class="card-title">Add Editor</h3>
@@ -43,7 +52,7 @@
         </div>
       </router-link>
 
-      <router-link to="/manage-users?type=admin" class="dashboard-card admin-card" v-if="isAdmin">
+      <router-link to="/manage-users?type=admin" class="dashboard-card admin-card">
         <div class="card-content">
           <div class="card-icon admin-icon">🛡️</div>
           <h3 class="card-title">Add Admin</h3>
@@ -114,15 +123,12 @@ export default defineComponent({
 
     const loadStats = async () => {
       try {
-        // Load conferences
         await conferenceStore.fetchConferences()
         stats.value.conferences = conferenceStore.conferences.length
 
-        // Load subpages
         await subpageStore.fetchSubpages()
         stats.value.subpages = subpageStore.subpages.length
 
-        // Load users if admin
         if (authStore.isAdmin) {
           await userStore.fetchUsers()
           stats.value.users = userStore.users.length
@@ -267,7 +273,7 @@ hr {
 }
 
 /* Specific card styles */
-.admin-card {
+/* .admin-card {
   background-color: #3b82f6;
   color: white;
 }
@@ -278,7 +284,7 @@ hr {
 
 .admin-card .card-description {
   color: #bfdbfe;
-}
+} */
 
 .stats-card {
   background-color: #f3f4f6;
@@ -337,5 +343,9 @@ hr {
   .dashboard-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.settings-icon {
+  color: #64748b; /* Slate */
 }
 </style>

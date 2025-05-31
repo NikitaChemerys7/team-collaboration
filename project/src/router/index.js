@@ -9,12 +9,10 @@ import SubpagePage from '../views/SubpagePage.vue'
 import ContactPage from '../views/ContactPage.vue'
 import NotFoundPage from '../views/NotFoundPage.vue'
 
-// Auth pages
 import LoginPage from '../views/auth/LoginPage.vue'
 import RegistrationPage from '../views/auth/RegistrationPage.vue'
 import ResetPasswordPage from '../views/auth/ResetPasswordPage.vue'
 
-// Admin & Editor pages
 import DashboardPage from '../views/dashboard/DashboardPage.vue'
 import ProfilePage from '../views/dashboard/ProfilePage.vue'
 import ManageConferencePage from '../views/dashboard/ManageConferencePage.vue'
@@ -95,10 +93,13 @@ const routes = [
     meta: { title: 'Manage Conference', requiresAuth: true, roles: ['admin'] }
   },
   {
-    path: '/manage-users',
+    path: '/dashboard/users',
     name: 'manage-users',
     component: ManageUsersPage,
-    meta: { title: 'Manage Users', requiresAuth: true, roles: ['admin'] }
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true
+    }
   },
   {
     path: '/dashboard/conferences/:conferenceId/subpages',

@@ -163,7 +163,6 @@ export default {
 
       loading.value = true
       try {
-        // Only send fields that have been changed
         const dataToSend = {}
         if (form.value.name !== authStore.user.name) dataToSend.name = form.value.name
         if (form.value.degree !== authStore.user.degree) dataToSend.degree = form.value.degree
@@ -184,10 +183,8 @@ export default {
         message.value = 'Profile updated successfully'
         messageType.value = 'success'
         
-        // Update the auth store with new user data
         authStore.setUser(response.data.user)
 
-        // Clear password fields
         form.value.current_password = ''
         form.value.password = ''
         form.value.password_confirmation = ''

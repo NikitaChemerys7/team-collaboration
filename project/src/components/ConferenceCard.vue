@@ -101,7 +101,6 @@ function truncateDescription(description) {
 .conference-details p {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
     margin: 0;
 }
 
