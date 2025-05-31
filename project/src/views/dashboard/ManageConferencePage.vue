@@ -35,7 +35,12 @@
           </button>
         </div>
       </div>
-      <button class="btn btn-primary mb-6">Create New</button>
+      <button 
+        class="btn btn-primary mb-6"
+        @click="startCreate"
+      >
+        Create New
+      </button>
       <div class="conference-list bg-gray-100 rounded-lg p-4">
         <div
           v-for="conf in filteredConferences"
@@ -115,27 +120,38 @@
           </div>
 
           <div class="form-group">
-            <label for="heroImage" class="form-label">Hero Image (URL)</label>
-            <input
-              id="heroImage"
-              v-model="form.heroImage"
-              class="form-control"
-              placeholder="https://..."
-              :disabled="saving"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="gallery" class="form-label">Gallery (comma-separated URLs)</label>
-            <input
-              id="gallery"
-              v-model="galleryInput"
-              class="form-control"
-              placeholder="https://img1.jpg, https://img2.jpg"
-              :disabled="saving"
-            />
-            <div class="gallery-preview">
-              <img v-for="img in form.gallery" :key="img" :src="img" class="gallery-thumbnail" />
+            <label class="form-label">Hero Image</label>
+            <div class="hero-image-section">
+              <div v-if="form.hero_image" class="hero-image-preview">
+                <img 
+                  :src="form.hero_image" 
+                  alt="Hero preview" 
+                  class="preview-image"
+                />
+                <button 
+                  type="button"
+                  @click="removeHeroImage"
+                  class="remove-button"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="upload-controls">
+                <input
+                  type="file"
+                  ref="heroImageInput"
+                  @change="handleHeroImageChange"
+                  accept="image/*"
+                  class="hidden"
+                />
+                <button
+                  type="button"
+                  @click="$refs.heroImageInput.click()"
+                  class="btn btn-secondary"
+                >
+                  {{ form.hero_image ? 'Change Image' : 'Upload Image' }}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -194,12 +210,6 @@
                 placeholder="Workplace"
                 :disabled="saving"
               />
-              <input
-                v-model="speaker.photo"
-                class="form-control"
-                placeholder="Photo URL"
-                :disabled="saving"
-              />
               <button
                 type="button"
                 @click="removeSpeaker(idx)"
@@ -248,6 +258,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConferenceStore } from '../../stores/conference'
 import Editor from '@tinymce/tinymce-vue'
+import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
@@ -282,11 +293,13 @@ const form = ref({
   date: '',
   location: '',
   description: '',
-  heroImage: '',
-  gallery: [],
+  hero_image: null,
+  heroImageFile: null,
   speakers: [],
   files: []
 })
+
+const heroImageInput = ref(null)
 
 watch(() => store.conferences, (conferences) => {
   const allYears = conferences.map(c => c.year)
@@ -305,8 +318,8 @@ function resetForm() {
     date: '',
     location: '',
     description: '',
-    heroImage: '',
-    gallery: [],
+    hero_image: null,
+    heroImageFile: null,
     speakers: [],
     files: []
   }
@@ -337,7 +350,7 @@ async function editConference(id) {
 }
 
 function addSpeaker() {
-  form.value.speakers.push({ name: '', role: '', workplace: '', photo: '' })
+  form.value.speakers.push({ name: '', role: '', workplace: '' })
 }
 
 function removeSpeaker(idx) {
@@ -364,11 +377,27 @@ async function saveConference() {
       date: form.value.date ? new Date(form.value.date).toISOString().split('T')[0] : null
     }
     
+    let savedConference
     if (editingId.value) {
-      await store.updateConference(editingId.value, dataToSave)
+      savedConference = await store.updateConference(editingId.value, dataToSave)
     } else {
-      await store.createConference(dataToSave)
+      savedConference = await store.createConference(dataToSave)
+      
+      if (form.value.heroImageFile) {
+        const formData = new FormData()
+        formData.append('hero_image', form.value.heroImageFile)
+        await axios.post(
+          `${API_URL}/conferences/${savedConference.id}/hero-image`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+      }
     }
+    
     await store.fetchConferences()
     saving.value = false
     resetForm()
@@ -395,6 +424,43 @@ function addNewYear() {
   years.value = [...years.value, year].sort((a, b) => b - a)
   selectedYear.value = year
   newYear.value = ''
+}
+
+const handleHeroImageChange = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const formData = new FormData()
+  formData.append('hero_image', file)
+
+  try {
+    if (editingId.value) {
+      const response = await axios.post(
+        `${API_URL}/conferences/${editingId.value}/hero-image`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+      form.value.hero_image = response.data.hero_image
+    } else {
+      form.value.hero_image = URL.createObjectURL(file)
+      form.value.heroImageFile = file
+    }
+  } catch (error) {
+    console.error('Error uploading hero image:', error)
+  }
+}
+
+const removeHeroImage = async () => {
+  try {
+    await axios.delete(`${API_URL}/conferences/${route.params.id}/hero-image`)
+    form.value.hero_image = null
+  } catch (error) {
+    console.error('Error removing hero image:', error)
+  }
 }
 
 onMounted(async () => {
@@ -651,5 +717,57 @@ onMounted(async () => {
 
 .tinymce-editor :deep(.tox-tinymce) {
   border: none !important;
+}
+
+.hero-image-section {
+  margin-bottom: 1.5rem;
+}
+
+.hero-image-preview {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.preview-image {
+  width: 150px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.remove-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s;
+}
+
+.remove-button:hover {
+  background-color: darkred;
+}
+
+.upload-controls {
+  margin-top: 0.5rem;
+}
+
+.speaker-input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
 }
 </style>

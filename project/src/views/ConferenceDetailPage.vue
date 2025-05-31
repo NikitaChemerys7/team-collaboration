@@ -22,6 +22,14 @@
     </div>
 
     <div v-else class="container">
+      <div v-if="conference?.hero_image" class="hero-image-container">
+        <img 
+          :src="conference.hero_image" 
+          :alt="conference.title"
+          class="hero-image"
+        />
+      </div>
+
       <div class="hero-section" :style="heroStyle">
         <div class="hero-content">
           <h1>{{ conference.title }}</h1>
@@ -520,5 +528,18 @@ h2 {
 
 .subpage-card:hover .read-more i {
   transform: translateX(4px);
+}
+
+.hero-image-container {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

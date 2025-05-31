@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ConferenceController extends Controller
 {
-    
+
     public function index()
     {
         return Conference::all();
     }
 
-    
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -41,7 +41,7 @@ class ConferenceController extends Controller
         return response()->json($conference, 201);
     }
 
-   
+
     public function show(string $id)
     {
         $conference = Conference::find($id);
@@ -51,7 +51,7 @@ class ConferenceController extends Controller
         return $conference;
     }
 
-    
+
     public function update(Request $request, string $id)
     {
         $conference = Conference::find($id);
@@ -83,7 +83,7 @@ class ConferenceController extends Controller
         return response()->json($conference);
     }
 
-    
+
     public function destroy(string $id)
     {
         $conference = Conference::find($id);
@@ -94,7 +94,7 @@ class ConferenceController extends Controller
         $conference->delete();
         return response()->json(null, 204);
     }
-    
+
     public function getEditors($id)
     {
         $conference = \App\Models\Conference::findOrFail($id);
@@ -134,5 +134,57 @@ class ConferenceController extends Controller
         $user->managedConferences()->detach($conference->id);
 
         return response()->json(['message' => 'Editor removed']);
+    }
+
+    public function uploadHeroImage(Request $request, $id)
+    {
+        $conference = Conference::findOrFail($id);
+
+        $request->validate([
+            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        if ($conference->hero_image) {
+            // Delete old image
+            $oldImagePath = public_path('storage/' . $conference->hero_image);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+        }
+
+        if ($request->hasFile('hero_image')) {
+            $image = $request->file('hero_image');
+            $imageName = 'conferences/' . time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('public', $imageName);
+            $conference->hero_image = $imageName;
+        } else {
+            $conference->hero_image = null;
+        }
+
+        $conference->save();
+
+        return response()->json([
+            'message' => 'Hero image updated successfully',
+            'hero_image' => $conference->hero_image
+        ]);
+    }
+
+    public function removeHeroImage($id)
+    {
+        $conference = Conference::findOrFail($id);
+
+        if ($conference->hero_image) {
+            $imagePath = public_path('storage/' . $conference->hero_image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+
+            $conference->hero_image = null;
+            $conference->save();
+        }
+
+        return response()->json([
+            'message' => 'Hero image removed successfully'
+        ]);
     }
 }

@@ -13,7 +13,6 @@ use App\Http\Controllers\ProfileController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
-// Public conference routes
 Route::get('/conferences', [ConferenceController::class, 'index']);
 Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
 
@@ -27,7 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update']);
 
-    // Protected conference routes
     Route::post('/conferences', [ConferenceController::class, 'store']);
     Route::put('/conferences/{id}', [ConferenceController::class, 'update']);
     Route::delete('/conferences/{id}', [ConferenceController::class, 'destroy']);
@@ -37,7 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
     });
 
-    // Subpage routes
     Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
     Route::post('/conferences/{conferenceId}/subpages', [SubpageController::class, 'store']);
     Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'show']);
@@ -45,7 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'destroy']);
 
     Route::middleware('role:admin')->group(function () {
-        // User management routes
         Route::get('/users', [AuthController::class, 'getUsers']);
         Route::post('/users', [AuthController::class, 'createUser']);
         Route::put('/users/{id}', [AuthController::class, 'updateUser']);

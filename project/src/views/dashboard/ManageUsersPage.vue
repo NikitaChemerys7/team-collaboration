@@ -90,7 +90,6 @@ const updateUserRole = async (user) => {
   try {
     loading.value = true
     await authStore.updateUser(user.id, { role: user.role })
-    // Refresh the users list
     await fetchUsers()
   } catch (err) {
     error.value = 'Failed to update user role. Please try again.'
@@ -108,7 +107,6 @@ const deleteUser = async (user) => {
   try {
     loading.value = true
     await authStore.deleteUser(user.id)
-    // Refresh the users list
     await fetchUsers()
   } catch (err) {
     error.value = 'Failed to delete user. Please try again.'
