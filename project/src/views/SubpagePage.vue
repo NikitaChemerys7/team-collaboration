@@ -188,6 +188,7 @@ onMounted(fetchSubpage)
   font-size: 2.5rem;
   margin-bottom: var(--spacing-md);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: white;
 }
 
 .subpage-meta {

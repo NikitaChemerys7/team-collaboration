@@ -44,7 +44,7 @@
         </div>
       </router-link>
 
-      <router-link to="/manage-users?type=editor" class="dashboard-card editor-card">
+      <!-- <router-link to="/manage-users?type=editor" class="dashboard-card editor-card">
         <div class="card-content">
           <div class="card-icon users-icon">👥</div>
           <h3 class="card-title">Add Editor</h3>
@@ -58,7 +58,7 @@
           <h3 class="card-title">Add Admin</h3>
           <p class="card-description">Add a new administrator</p>
         </div>
-      </router-link>
+      </router-link> -->
     </div>
 
     <hr>

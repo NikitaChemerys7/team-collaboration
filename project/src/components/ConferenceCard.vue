@@ -55,7 +55,6 @@ function formatDate(dateString) {
 
 function truncateDescription(description) {
     if (!description) return ''
-    // Remove HTML tags and decode HTML entities
     const strippedContent = description.replace(/<[^>]*>/g, '')
         .replace(/&nbsp;/g, ' ')
         .replace(/&amp;/g, '&')
@@ -64,14 +63,11 @@ function truncateDescription(description) {
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
     
-    // Split into lines and take first 3
     const lines = strippedContent.split('\n').filter(line => line.trim())
     const truncatedLines = lines.slice(0, 3).map(line => {
-        // Limit each line to 100 characters
         return line.length > 100 ? line.substring(0, 100) + '...' : line
     })
     
-    // Join lines and add ellipsis if there were more lines
     return truncatedLines.join('\n') + (lines.length > 3 ? '...' : '')
 }
 </script>

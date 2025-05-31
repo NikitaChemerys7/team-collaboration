@@ -16,6 +16,9 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::get('/conferences', [ConferenceController::class, 'index']);
 Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
 
+Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
+Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -35,9 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
     });
 
-    Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
     Route::post('/conferences/{conferenceId}/subpages', [SubpageController::class, 'store']);
-    Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'show']);
     Route::put('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'update']);
     Route::delete('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'destroy']);
 
