@@ -132,6 +132,16 @@ export const useAuthStore = defineStore('auth', {
         console.error('Error deleting user:', error)
         throw error
       }
+    },
+
+    async updateProfile(userData) {
+      try {
+        const response = await axios.put(`${API_URL}/profile`, userData)
+        return response
+      } catch (error) {
+        console.error('Error updating profile:', error)
+        throw error
+      }
     }
   }
 })

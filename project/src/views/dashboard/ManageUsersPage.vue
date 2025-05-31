@@ -26,7 +26,14 @@
             </thead>
             <tbody>
               <tr v-for="user in users" :key="user.id">
-                <td>{{ user.name }}</td>
+                <td>
+                  <input 
+                    v-model="user.name" 
+                    class="name-input"
+                    :disabled="isCurrentUser(user)"
+                    @blur="updateUserName(user)"
+                  />
+                </td>
                 <td>{{ user.email }}</td>
                 <td>
                   <select 
@@ -45,6 +52,7 @@
                     <button 
                       v-if="!isCurrentUser(user)"
                       class="btn btn-danger btn-sm"
+                      @click="deleteUser(user)"
                     >
                       Delete
                     </button>
@@ -94,6 +102,19 @@ const updateUserRole = async (user) => {
   } catch (err) {
     error.value = 'Failed to update user role. Please try again.'
     console.error('Error updating user role:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const updateUserName = async (user) => {
+  try {
+    loading.value = true
+    await authStore.updateUser(user.id, { name: user.name })
+    await fetchUsers()
+  } catch (err) {
+    error.value = 'Failed to update user name. Please try again.'
+    console.error('Error updating user name:', err)
   } finally {
     loading.value = false
   }
@@ -162,6 +183,23 @@ onMounted(fetchUsers)
   background-color: var(--color-background);
 }
 
+.name-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.name-input:disabled {
+  background-color: var(--color-background);
+  cursor: not-allowed;
+  opacity: 0.7;
+  border: none;
+}
+
 .role-select {
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
@@ -199,17 +237,10 @@ onMounted(fetchUsers)
 .btn-danger {
   background-color: var(--color-error);
   color: white;
-  cursor: pointer;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background-color: darkred;
-  transform: translateY(-1px);
-}
-
-.btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 .error-message {

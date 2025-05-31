@@ -173,12 +173,7 @@ export default {
           dataToSend.password_confirmation = form.value.password_confirmation
         }
 
-        const response = await axios.put(`${API_URL}/profile`, dataToSend, {
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
+        const response = await authStore.updateProfile(dataToSend)
 
         message.value = 'Profile updated successfully'
         messageType.value = 'success'
@@ -197,10 +192,6 @@ export default {
         console.error('Axios error:', error);
         message.value = error.response?.data?.message || 'Failed to update profile'
         messageType.value = 'error'
-        
-        if (error.response?.data?.errors) {
-          errors.value = error.response.data.errors
-        }
       } finally {
         loading.value = false
       }
