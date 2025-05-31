@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('conference_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->string('slug')->unique();
-            $table->text('content');
+            $table->longText('content'); 
             $table->integer('order')->default(0);
             $table->boolean('is_published')->default(true);
             $table->timestamps();
@@ -24,4 +24,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('subpages');
     }
-}; 
+};

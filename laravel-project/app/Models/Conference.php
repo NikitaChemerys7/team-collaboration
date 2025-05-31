@@ -28,9 +28,13 @@ class Conference extends Model
         'speakers' => 'array'
     ];
 
-    public function editors()
+    public function subpages()
     {
         return $this->hasMany(Subpage::class)->orderBy('order');
+    }
+
+    public function editors()
+    {
         return $this->belongsToMany(
             \App\Models\User::class,
             'user_manages_conferences',
