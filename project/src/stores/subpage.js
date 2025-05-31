@@ -30,8 +30,15 @@ export const useSubpageStore = defineStore('subpage', {
       this.loading = true
       this.error = null
       
+      const authStore = useAuthStore()
+      
       try {
-        const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`)
+        const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`, {
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
         this.subpages = response.data
         return response.data
       } catch (error) {

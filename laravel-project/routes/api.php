@@ -8,6 +8,7 @@ use App\Http\Controllers\SubpageController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\ProfileController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -19,6 +20,12 @@ Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::put('/profile', [ProfileController::class, 'update']);
 
     // Protected conference routes
     Route::post('/conferences', [ConferenceController::class, 'store']);

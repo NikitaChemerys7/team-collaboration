@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; 
+use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\VerifyEmailNotification;
@@ -16,9 +16,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
         'name',
+        'degree',
         'email',
         'password',
-         'role',
+        'role',
     ];
 
     protected $hidden = [
@@ -40,7 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'user';
     }
-    
+
     protected function casts(): array
     {
         return [

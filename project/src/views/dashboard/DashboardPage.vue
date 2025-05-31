@@ -8,7 +8,6 @@
     </div>
 
     <div class="dashboard-grid">
-      <!-- Add Conference -->
       <router-link to="/manage-conference" class="dashboard-card conference-card" v-if="isAdmin">
         <div class="card-content">
           <div class="card-icon graduation-icon">🎓</div>

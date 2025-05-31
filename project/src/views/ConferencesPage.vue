@@ -2,7 +2,6 @@
   <div class="conferences-page">
     <div class="container">
       <div class="page-layout">
-        <!-- Sidebar with year filters -->
         <aside class="sidebar">
           <h2>Years</h2>
           <div class="year-filters">
@@ -17,7 +16,6 @@
           </div>
         </aside>
 
-        <!-- Main content -->
         <main class="main-content">
           <h1>Conferences</h1>
           
