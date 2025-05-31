@@ -1,7 +1,7 @@
 <template>
     <div class="conference-card">
         <div class="conference-image" v-if="conference.hero_image">
-            <img :src="conference.hero_image" :alt="conference.title">
+            <img :src="getHeroImageUrl(conference.hero_image)" :alt="conference.title">
         </div>
         <div class="conference-content">
             <h3>{{ conference.title }}</h3>
@@ -26,6 +26,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { API_URL } from '../config'
 
 const props = defineProps({
     conference: {
@@ -33,6 +34,15 @@ const props = defineProps({
         required: true
     }
 })
+
+function getHeroImageUrl(heroImage) {
+    if (!heroImage) return ''
+    if (heroImage.startsWith('http')) return heroImage
+    if (heroImage.startsWith('/')) {
+        return `${API_URL.replace('/api', '')}${heroImage}`
+    }
+    return `${API_URL.replace('/api', '')}/${heroImage}`
+}
 
 function formatDate(dateString) {
     const date = new Date(dateString)

@@ -49,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/conferences/{conference}/editors', [ConferenceController::class, 'getEditors']);
         Route::post('/conferences/{conference}/assign-editor', [ConferenceController::class, 'assignEditor']);
         Route::post('/conferences/{conference}/remove-editor', [ConferenceController::class, 'removeEditor']);
+        Route::post('/conferences/{conference}/hero-image', [ConferenceController::class, 'uploadHeroImage']);
+        Route::delete('/conferences/{conference}/hero-image', [ConferenceController::class, 'removeHeroImage']);
     });
 });
 

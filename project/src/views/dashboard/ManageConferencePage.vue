@@ -259,6 +259,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useConferenceStore } from '../../stores/conference'
 import Editor from '@tinymce/tinymce-vue'
 import axios from 'axios'
+import { API_URL } from '../../config'
 
 const route = useRoute()
 const router = useRouter()
@@ -341,6 +342,9 @@ async function editConference(id) {
     if (form.value.date) {
       form.value.date = new Date(form.value.date).toISOString().split('T')[0]
     }
+    if (form.value.hero_image) {
+      form.value.hero_image = `${API_URL.replace('/api', '')}/${form.value.hero_image}`
+    }
     galleryInput.value = conf.gallery ? conf.gallery.join(', ') : ''
     editingId.value = conf.id
     selectedYear.value = conf.year
@@ -377,16 +381,38 @@ async function saveConference() {
       date: form.value.date ? new Date(form.value.date).toISOString().split('T')[0] : null
     }
     
+    delete dataToSave.heroImageFile
+    
+    if (dataToSave.hero_image && dataToSave.hero_image.startsWith('blob:')) {
+      delete dataToSave.hero_image
+    }
+    
     let savedConference
     if (editingId.value) {
       savedConference = await store.updateConference(editingId.value, dataToSave)
+      
+      if (form.value.heroImageFile) {
+        const formData = new FormData()
+        formData.append('hero_image', form.value.heroImageFile)
+        const response = await axios.post(
+          `${API_URL}/conferences/${editingId.value}/hero-image`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+        form.value.hero_image = response.data.hero_image
+        await store.fetchConferenceById(editingId.value)
+      }
     } else {
       savedConference = await store.createConference(dataToSave)
       
       if (form.value.heroImageFile) {
         const formData = new FormData()
         formData.append('hero_image', form.value.heroImageFile)
-        await axios.post(
+        const response = await axios.post(
           `${API_URL}/conferences/${savedConference.id}/hero-image`,
           formData,
           {
@@ -395,6 +421,8 @@ async function saveConference() {
             }
           }
         )
+        form.value.hero_image = response.data.hero_image
+        await store.fetchConferenceById(savedConference.id)
       }
     }
     
@@ -444,10 +472,12 @@ const handleHeroImageChange = async (event) => {
           }
         }
       )
-      form.value.hero_image = response.data.hero_image
+      const serverPath = response.data.hero_image
+      form.value.hero_image = `${API_URL.replace('/api', '')}/${serverPath}`
+      await store.fetchConferenceById(editingId.value)
     } else {
-      form.value.hero_image = URL.createObjectURL(file)
       form.value.heroImageFile = file
+      form.value.hero_image = URL.createObjectURL(file)
     }
   } catch (error) {
     console.error('Error uploading hero image:', error)

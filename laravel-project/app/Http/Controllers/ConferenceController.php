@@ -23,7 +23,7 @@ class ConferenceController extends Controller
             'date' => 'required|date',
             'location' => 'required|string|max:255',
             'description' => 'required|string',
-            'heroImage' => 'nullable|string|max:255',
+            'hero_image' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'files' => 'nullable|array',
             'speakers' => 'nullable|array'
@@ -34,9 +34,6 @@ class ConferenceController extends Controller
         }
 
         $data = $request->all();
-        $data['hero_image'] = $data['heroImage'] ?? null;
-        unset($data['heroImage']);
-
         $conference = Conference::create($data);
         return response()->json($conference, 201);
     }
@@ -65,7 +62,7 @@ class ConferenceController extends Controller
             'date' => 'required|date',
             'location' => 'required|string|max:255',
             'description' => 'required|string',
-            'heroImage' => 'nullable|string|max:255',
+            'hero_image' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'files' => 'nullable|array',
             'speakers' => 'nullable|array'
@@ -76,9 +73,6 @@ class ConferenceController extends Controller
         }
 
         $data = $request->all();
-        $data['hero_image'] = $data['heroImage'] ?? null;
-        unset($data['heroImage']);
-
         $conference->update($data);
         return response()->json($conference);
     }
@@ -145,26 +139,34 @@ class ConferenceController extends Controller
         ]);
 
         if ($conference->hero_image) {
-            // Delete old image
-            $oldImagePath = public_path('storage/' . $conference->hero_image);
-            if (file_exists($oldImagePath)) {
-                unlink($oldImagePath);
+            $imagePath = public_path($conference->hero_image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
             }
         }
 
         if ($request->hasFile('hero_image')) {
             $image = $request->file('hero_image');
-            $imageName = 'conferences/' . time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public', $imageName);
-            $conference->hero_image = $imageName;
-        } else {
-            $conference->hero_image = null;
+            $imageName = time() . '_' . $image->getClientOriginalName();
+
+            $uploadPath = public_path('images/conferences');
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $image->move($uploadPath, $imageName);
+
+            $conference->hero_image = 'images/conferences/' . $imageName;
+            $conference->save();
+
+            return response()->json([
+                'message' => 'Hero image updated successfully',
+                'hero_image' => $conference->hero_image
+            ]);
         }
 
-        $conference->save();
-
         return response()->json([
-            'message' => 'Hero image updated successfully',
+            'message' => 'No image uploaded',
             'hero_image' => $conference->hero_image
         ]);
     }
@@ -174,7 +176,7 @@ class ConferenceController extends Controller
         $conference = Conference::findOrFail($id);
 
         if ($conference->hero_image) {
-            $imagePath = public_path('storage/' . $conference->hero_image);
+            $imagePath = public_path($conference->hero_image);
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

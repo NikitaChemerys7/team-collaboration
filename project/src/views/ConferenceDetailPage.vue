@@ -22,14 +22,6 @@
     </div>
 
     <div v-else class="container">
-      <div v-if="conference?.hero_image" class="hero-image-container">
-        <img 
-          :src="conference.hero_image" 
-          :alt="conference.title"
-          class="hero-image"
-        />
-      </div>
-
       <div class="hero-section" :style="heroStyle">
         <div class="hero-content">
           <h1>{{ conference.title }}</h1>
@@ -66,20 +58,6 @@
           </div>
         </div>
 
-        <div v-if="conference.gallery?.length" class="gallery-section">
-          <h2>Gallery</h2>
-          <div class="gallery-grid">
-            <img 
-              v-for="(image, index) in conference.gallery" 
-              :key="index" 
-              :src="image" 
-              :alt="`Conference image ${index + 1}`"
-              @click="openGallery(index)"
-              class="gallery-image"
-            >
-          </div>
-        </div>
-
         <div v-if="conference.files?.length" class="documents-section">
           <h2>Documents</h2>
           <div class="documents-list">
@@ -112,23 +90,6 @@
         </div>
       </div>
     </div>
-
-    <div v-if="showGallery" class="gallery-modal" @click="closeGallery">
-      <button class="close-button" @click="closeGallery">
-        <i class="fas fa-times"></i>
-      </button>
-      <button class="nav-button prev" @click.stop="prevImage">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button class="nav-button next" @click.stop="nextImage">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-      <img 
-        :src="conference.gallery[currentImageIndex]" 
-        :alt="`Conference image ${currentImageIndex + 1}`"
-        class="modal-image"
-      >
-    </div>
   </div>
 </template>
 
@@ -137,6 +98,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConferenceStore } from '../stores/conference'
 import { useSubpageStore } from '../stores/subpage'
+import { API_URL } from '../config'
 
 const route = useRoute()
 const router = useRouter()
@@ -151,9 +113,18 @@ const subpages = computed(() => subpageStore.subpages)
 
 const heroStyle = computed(() => ({
   backgroundImage: conference.value?.hero_image 
-    ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${conference.value.hero_image})`
+    ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${getHeroImageUrl(conference.value.hero_image)})`
     : 'linear-gradient(var(--color-primary), var(--color-primary-dark))'
 }))
+
+function getHeroImageUrl(heroImage) {
+    if (!heroImage) return ''
+    if (heroImage.startsWith('http')) return heroImage
+    if (heroImage.startsWith('/')) {
+        return `${API_URL.replace('/api', '')}${heroImage}`
+    }
+    return `${API_URL.replace('/api', '')}/${heroImage}`
+}
 
 function formatDate(dateString) {
   const date = new Date(dateString)
@@ -235,6 +206,7 @@ onMounted(fetchConference)
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: white;
 }
 
 .conference-meta {
@@ -528,18 +500,5 @@ h2 {
 
 .subpage-card:hover .read-more i {
   transform: translateX(4px);
-}
-
-.hero-image-container {
-  width: 100%;
-  height: 400px;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 </style>

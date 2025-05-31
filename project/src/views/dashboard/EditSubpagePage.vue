@@ -231,7 +231,6 @@ export default {
       this.error = null
       
       try {
-        // Ensure slug is properly formatted
         const slug = this.form.slug.trim().toLowerCase().replace(/\s+/g, '-')
         
         const subpageData = {
