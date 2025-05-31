@@ -343,7 +343,7 @@ async function editConference(id) {
       form.value.date = new Date(form.value.date).toISOString().split('T')[0]
     }
     if (form.value.hero_image) {
-      form.value.hero_image = `${API_URL.replace('/api', '')}/${form.value.hero_image}`
+      form.value.hero_image = `${API_URL.replace('/api', '')}${form.value.hero_image.startsWith('/') ? '' : '/'}${form.value.hero_image}`
     }
     galleryInput.value = conf.gallery ? conf.gallery.join(', ') : ''
     editingId.value = conf.id
@@ -385,6 +385,8 @@ async function saveConference() {
     
     if (dataToSave.hero_image && dataToSave.hero_image.startsWith('blob:')) {
       delete dataToSave.hero_image
+    } else if (dataToSave.hero_image && dataToSave.hero_image.startsWith(API_URL.replace('/api', ''))) {
+      dataToSave.hero_image = dataToSave.hero_image.replace(API_URL.replace('/api', ''), '')
     }
     
     let savedConference
@@ -473,7 +475,7 @@ const handleHeroImageChange = async (event) => {
         }
       )
       const serverPath = response.data.hero_image
-      form.value.hero_image = `${API_URL.replace('/api', '')}/${serverPath}`
+      form.value.hero_image = `${API_URL.replace('/api', '')}${serverPath.startsWith('/') ? '' : '/'}${serverPath}`
       await store.fetchConferenceById(editingId.value)
     } else {
       form.value.heroImageFile = file
