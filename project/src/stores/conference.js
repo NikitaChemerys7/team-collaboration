@@ -26,7 +26,11 @@ export const useConferenceStore = defineStore('conference', {
       this.error = null
       
       try {
-        const response = await axios.get(`${API_URL}/conferences`)
+        const response = await axios.get(`${API_URL}/conferences`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
         this.conferences = response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch conferences'

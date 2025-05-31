@@ -180,7 +180,7 @@ class AuthController extends Controller
         try {
             $user = User::findOrFail($id);
 
-            // Prevent deleting yourself
+            
             if ($user->id === auth()->id()) {
                 return response()->json([
                     'message' => 'You cannot delete yourself'
@@ -215,7 +215,7 @@ class AuthController extends Controller
         $request->validate([
             'token' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|string|min:6|confirmed', // password_confirmation
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $status = Password::reset(

@@ -2,13 +2,11 @@
   <div class="dashboard-page">
     <h1 class="dashboard-title">Dashboard</h1>
 
-    <!-- User Info Card -->
     <div class="user-info-card">
       <p class="user-info-text">Current user: <span class="user-name">{{ user?.name || 'Admin User' }}</span></p>
       <p class="user-info-text">Role: <span class="user-role">{{ user?.role || 'admin' }}</span></p>
     </div>
 
-    <!-- Dashboard Grid -->
     <div class="dashboard-grid">
       <!-- Add Conference -->
       <router-link to="/manage-conference" class="dashboard-card conference-card" v-if="isAdmin">
@@ -19,7 +17,6 @@
         </div>
       </router-link>
 
-      <!-- Add Subpage -->
       <router-link to="/dashboard/conferences/new/subpages" class="dashboard-card subpage-card">
         <div class="card-content">
           <div class="card-icon document-icon">📄</div>
@@ -28,7 +25,6 @@
         </div>
       </router-link>
 
-      <!-- Add Editor -->
       <router-link to="/manage-users?type=editor" class="dashboard-card editor-card" v-if="isAdmin">
         <div class="card-content">
           <div class="card-icon users-icon">👥</div>
@@ -37,7 +33,6 @@
         </div>
       </router-link>
 
-      <!-- Add Admin -->
       <router-link to="/manage-users?type=admin" class="dashboard-card admin-card" v-if="isAdmin">
         <div class="card-content">
           <div class="card-icon admin-icon">🛡️</div>
@@ -46,7 +41,6 @@
         </div>
       </router-link>
 
-      <!-- Edit Subpages -->
       <router-link to="/dashboard/conferences/all/subpages" class="dashboard-card edit-card">
         <div class="card-content">
           <div class="card-icon edit-icon">✏️</div>
@@ -54,7 +48,6 @@
           <p class="card-description">Edit or delete conference subpages</p>
         </div>
       </router-link>
-        <!-- Mail -->
       <router-link to="/dashboard/mail" class="dashboard-card mail-card" v-if="isAdmin">
           <div class="card-content">
           <div class="card-icon mail-icon">✉️</div>
@@ -63,7 +56,6 @@
         </div>
       </router-link>
 
-      <!-- Statistics Card -->
       <div class="dashboard-card stats-card">
         <div class="card-content">
           <div class="card-icon stats-icon">📊</div>

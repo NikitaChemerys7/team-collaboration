@@ -22,7 +22,6 @@
     </div>
 
     <div v-else class="container">
-      <!-- Hero Section -->
       <div class="hero-section" :style="heroStyle">
         <div class="hero-content">
           <h1>{{ conference.title }}</h1>
@@ -39,14 +38,12 @@
         </div>
       </div>
 
-      <!-- Main Content -->
       <div class="main-content">
         <div class="description-section">
           <h2>About the Conference</h2>
           <div v-html="conference.description" class="description-content"></div>
         </div>
 
-        <!-- Speakers Section -->
         <div v-if="conference.speakers?.length" class="speakers-section">
           <h2>Speakers</h2>
           <div class="speakers-grid">
@@ -61,7 +58,6 @@
           </div>
         </div>
 
-        <!-- Gallery Section -->
         <div v-if="conference.gallery?.length" class="gallery-section">
           <h2>Gallery</h2>
           <div class="gallery-grid">
@@ -76,7 +72,6 @@
           </div>
         </div>
 
-        <!-- Documents Section -->
         <div v-if="conference.files?.length" class="documents-section">
           <h2>Documents</h2>
           <div class="documents-list">
@@ -93,7 +88,6 @@
           </div>
         </div>
 
-        <!-- Subpages Section -->
         <div v-if="subpages.length" class="subpages-section">
           <h2>Additional Information</h2>
           <div class="subpages-grid">
@@ -111,7 +105,6 @@
       </div>
     </div>
 
-    <!-- Gallery Modal -->
     <div v-if="showGallery" class="gallery-modal" @click="closeGallery">
       <button class="close-button" @click="closeGallery">
         <i class="fas fa-times"></i>
@@ -213,7 +206,6 @@ onMounted(fetchConference)
   padding: 0 var(--spacing-lg);
 }
 
-/* Hero Section */
 .hero-section {
   height: 400px;
   background-size: cover;
@@ -250,7 +242,6 @@ onMounted(fetchConference)
   gap: var(--spacing-sm);
 }
 
-/* Main Content */
 .main-content {
   padding: var(--spacing-xl) 0;
 }
@@ -271,7 +262,6 @@ h2 {
   border-bottom: 2px solid var(--color-primary);
 }
 
-/* Speakers Grid */
 .speakers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -336,7 +326,6 @@ h2 {
   transform: scale(1.05);
 }
 
-/* Documents List */
 .documents-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -481,7 +470,6 @@ h2 {
   font-style: italic;
 }
 
-/* Subpages Section */
 .subpages-section {
   margin-top: var(--spacing-xl);
 }

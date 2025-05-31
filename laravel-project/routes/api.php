@@ -12,12 +12,19 @@ use App\Http\Controllers\MailController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
+// Public conference routes
+Route::get('/conferences', [ConferenceController::class, 'index']);
+Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Conference routes
-    Route::apiResource('conferences', ConferenceController::class);
+    // Protected conference routes
+    Route::post('/conferences', [ConferenceController::class, 'store']);
+    Route::put('/conferences/{id}', [ConferenceController::class, 'update']);
+    Route::delete('/conferences/{id}', [ConferenceController::class, 'destroy']);
+
     Route::middleware(['role:editor', 'can.manage.conference'])->group(function () {
         Route::get('/conferences/{conference}/edit', [ConferenceController::class, 'edit']);
         Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
@@ -41,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/conferences/{conference}/remove-editor', [ConferenceController::class, 'removeEditor']);
     });
 });
+
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 Route::post('/send-email', [MailController::class, 'send'])->name('send.email');

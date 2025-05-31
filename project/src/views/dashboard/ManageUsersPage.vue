@@ -7,7 +7,6 @@
       <h1 class="page-title">{{ pageTitle }}</h1>
     </div>
 
-    <!-- Add User Form -->
     <div class="form-container">
       <form @submit.prevent="handleSubmit" class="user-form">
         <div class="form-group">
@@ -91,7 +90,6 @@
       </form>
     </div>
 
-    <!-- Users List -->
     <div class="users-list" v-if="users.length > 0">
       <h2 class="list-title">{{ userType ? `${userType}s` : 'All Users' }}</h2>
       <div class="users-grid">
@@ -123,7 +121,6 @@
       </div>
     </div>
 
-    <!-- Success/Error Messages -->
     <div v-if="message" class="message" :class="messageType">
       {{ message }}
     </div>

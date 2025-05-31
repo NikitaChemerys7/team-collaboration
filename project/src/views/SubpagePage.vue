@@ -22,7 +22,6 @@
     </div>
 
     <div v-else class="container">
-      <!-- Hero Section -->
       <div class="hero-section" :style="heroStyle">
         <div class="hero-content">
           <h1>{{ subpage.title }}</h1>
@@ -39,14 +38,11 @@
         </div>
       </div>
 
-      <!-- Main Content -->
       <div class="main-content">
-        <!-- Description Section -->
         <div class="description-section">
           <div v-html="subpage.content" class="content"></div>
         </div>
 
-        <!-- Gallery Section -->
         <div v-if="subpage.gallery?.length" class="gallery-section">
           <h2>Gallery</h2>
           <div class="gallery-grid">
@@ -61,7 +57,6 @@
           </div>
         </div>
 
-        <!-- Documents Section -->
         <div v-if="subpage.files?.length" class="documents-section">
           <h2>Documents</h2>
           <div class="documents-list">
@@ -80,7 +75,6 @@
       </div>
     </div>
 
-    <!-- Gallery Modal -->
     <div v-if="showGallery" class="gallery-modal" @click="closeGallery">
       <button class="close-button" @click="closeGallery">
         <i class="fas fa-times"></i>
