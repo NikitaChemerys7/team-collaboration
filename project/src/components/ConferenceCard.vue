@@ -55,7 +55,24 @@ function formatDate(dateString) {
 
 function truncateDescription(description) {
     if (!description) return ''
-    return description.length > 150 ? description.substring(0, 150) + '...' : description
+    // Remove HTML tags and decode HTML entities
+    const strippedContent = description.replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+    
+    // Split into lines and take first 3
+    const lines = strippedContent.split('\n').filter(line => line.trim())
+    const truncatedLines = lines.slice(0, 3).map(line => {
+        // Limit each line to 100 characters
+        return line.length > 100 ? line.substring(0, 100) + '...' : line
+    })
+    
+    // Join lines and add ellipsis if there were more lines
+    return truncatedLines.join('\n') + (lines.length > 3 ? '...' : '')
 }
 </script>
 
@@ -66,6 +83,8 @@ function truncateDescription(description) {
     box-shadow: var(--shadow-md);
     overflow: hidden;
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    display: flex;
+    flex-direction: column;
 }
 
 .conference-card:hover {
@@ -92,6 +111,9 @@ function truncateDescription(description) {
 
 .conference-content {
     padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .conference-content h3 {
@@ -132,6 +154,7 @@ function truncateDescription(description) {
     text-decoration: none;
     font-weight: 500;
     transition: color var(--transition-fast);
+    margin-top: auto;
 }
 
 .view-details:hover {
