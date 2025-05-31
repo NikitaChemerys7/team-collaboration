@@ -53,6 +53,20 @@
         </div>
         
         <div class="form-group">
+          <label for="slug" class="form-label">Slug</label>
+          <input
+            type="text"
+            id="slug"
+            v-model="form.slug"
+            class="form-control"
+            required
+            :disabled="loading"
+            placeholder="e.g., about-us"
+          />
+          <span class="form-help">URL-friendly version of the title (e.g., about-us, contact)</span>
+        </div>
+        
+        <div class="form-group">
           <label class="form-label">Content</label>
           <WysiwygEditor
             :value="form.content"
@@ -119,7 +133,8 @@ export default {
         title: '',
         content: '',
         order: 0,
-        isPublished: true
+        isPublished: true,
+        slug: ''
       },
       loading: false,
       error: null,
@@ -145,10 +160,12 @@ export default {
     isFormValid() {
       const isValid = this.form.title && 
              this.form.content &&
+             this.form.slug &&
              this.selectedConferenceId
       console.log('Form validation:', {
         title: this.form.title,
         content: this.form.content,
+        slug: this.form.slug,
         conferenceId: this.selectedConferenceId,
         isValid
       })
@@ -181,14 +198,17 @@ export default {
       try {
         const subpage = await this.fetchSubpage(this.selectedConferenceId, this.subpageId)
         if (subpage) {
+          console.log('Loaded subpage data:', subpage)
           this.form = {
-            title: subpage.title,
-            content: subpage.content,
-            order: subpage.order,
-            isPublished: subpage.is_published
+            title: subpage.title || '',
+            content: subpage.content || '',
+            order: subpage.order || 0,
+            isPublished: subpage.is_published || false,
+            slug: subpage.slug || ''
           }
         }
       } catch (error) {
+        console.error('Error loading subpage:', error)
         this.error = 'Failed to load subpage data'
       } finally {
         this.loading = false
@@ -211,24 +231,29 @@ export default {
       this.error = null
       
       try {
+        // Ensure slug is properly formatted
+        const slug = this.form.slug.trim().toLowerCase().replace(/\s+/g, '-')
+        
         const subpageData = {
-          title: this.form.title,
+          title: this.form.title.trim(),
           content: this.form.content,
           order: this.form.order,
-          is_published: this.form.isPublished
+          is_published: this.form.isPublished,
+          slug: slug
         }
         
         console.log('Saving subpage with data:', subpageData)
         
+        let savedSubpage
         if (this.isEditing) {
           console.log('Updating existing subpage:', this.subpageId)
-          await this.updateSubpage(this.selectedConferenceId, this.subpageId, subpageData)
+          savedSubpage = await this.updateSubpage(this.selectedConferenceId, this.subpageId, subpageData)
         } else {
           console.log('Creating new subpage')
-          await this.createSubpage(this.selectedConferenceId, subpageData)
+          savedSubpage = await this.createSubpage(this.selectedConferenceId, subpageData)
         }
         
-        console.log('Subpage saved successfully')
+        console.log('Subpage saved successfully:', savedSubpage)
         
         this.$router.push({
           name: 'manage-subpages',

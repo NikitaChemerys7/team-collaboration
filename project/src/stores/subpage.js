@@ -67,8 +67,18 @@ export const useSubpageStore = defineStore('subpage', {
         this.currentSubpage = response.data
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch subpage'
-        throw error
+        try {
+          const allSubpages = await this.fetchSubpages(conferenceId)
+          const subpage = allSubpages.find(sp => sp.slug === subpageId)
+          if (subpage) {
+            this.currentSubpage = subpage
+            return subpage
+          }
+          throw new Error('Subpage not found')
+        } catch (innerError) {
+          this.error = innerError.response?.data?.message || 'Failed to fetch subpage'
+          throw innerError
+        }
       } finally {
         this.loading = false
       }
@@ -104,13 +114,24 @@ export const useSubpageStore = defineStore('subpage', {
       this.error = null
       
       try {
+        const data = {
+          title: subpageData.title,
+          content: subpageData.content,
+          order: subpageData.order,
+          is_published: subpageData.is_published,
+          slug: subpageData.slug
+        }
+
+        console.log('Updating subpage with data:', data)
+        
         const response = await axios.put(
           `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
-          subpageData,
+          data,
           {
             headers: {
               'Content-Type': 'application/json',
-              'Accept': 'application/json'
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
           }
         )
@@ -124,6 +145,7 @@ export const useSubpageStore = defineStore('subpage', {
         
         return response.data
       } catch (error) {
+        console.error('Error updating subpage:', error)
         this.error = error.response?.data?.message || 'Failed to update subpage'
         throw error
       } finally {

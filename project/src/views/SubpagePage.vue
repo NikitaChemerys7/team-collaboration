@@ -107,7 +107,7 @@ const showGallery = ref(false)
 const currentImageIndex = ref(0)
 
 const conferenceId = computed(() => Number(route.params.conferenceId))
-const subpageId = computed(() => Number(route.params.subpageId))
+const subpageId = computed(() => route.params.subpageId)
 const subpage = computed(() => store.currentSubpage)
 
 const heroStyle = computed(() => ({
