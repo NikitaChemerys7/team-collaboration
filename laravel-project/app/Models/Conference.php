@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Conference extends Model
 {
@@ -28,14 +29,19 @@ class Conference extends Model
         'speakers' => 'array'
     ];
 
-    public function editors()
+    public function subpages()
     {
         return $this->hasMany(Subpage::class)->orderBy('order');
+    }
+
+    public function editors()
+    {
         return $this->belongsToMany(
-            \App\Models\User::class,
+            User::class,
             'user_manages_conferences',
             'conference_id',
             'user_id'
-        );
+        )->withTimestamps()
+        ->withPivot(['granted_by_user_id', 'granted_at']);
     }
 }

@@ -13,11 +13,11 @@ class SubpageController extends Controller
     {
         try {
             $conference = Conference::findOrFail($conferenceId);
-            
+
             $subpages = Subpage::where('conference_id', $conferenceId)
                 ->orderBy('order')
                 ->get();
-                
+
             return response()->json($subpages);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => 'Conference not found'], 404);
@@ -28,6 +28,10 @@ class SubpageController extends Controller
 
     public function store(Request $request, $conferenceId)
     {
+        if (!Auth::user()->canManageConference($conferenceId)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -36,7 +40,7 @@ class SubpageController extends Controller
         ]);
 
         $slug = Str::slug($request->title);
-        
+
         $count = 1;
         $originalSlug = $slug;
         while (Subpage::where('slug', $slug)->exists()) {
@@ -61,7 +65,7 @@ class SubpageController extends Controller
         $subpage = Subpage::where('conference_id', $conferenceId)
             ->where('id', $subpageId)
             ->firstOrFail();
-            
+
         return response()->json($subpage);
     }
 
@@ -75,8 +79,12 @@ class SubpageController extends Controller
             ]);
 
             $subpage = Subpage::where('conference_id', $conferenceId)
-                ->where('id', $subpageId)
-                ->firstOrFail();
+                      ->where('id', $subpageId)
+                      ->firstOrFail();
+
+            if (!Auth::user()->canManageSubpage($subpage->id)) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
 
             $request->validate([
                 'title' => 'required|string|max:255',
@@ -86,7 +94,7 @@ class SubpageController extends Controller
             ]);
 
             $slug = Str::slug($request->title);
-            
+
             if ($slug !== $subpage->slug) {
                 $count = 1;
                 $originalSlug = $slug;
@@ -130,11 +138,14 @@ class SubpageController extends Controller
     public function destroy($conferenceId, $subpageId)
     {
         $subpage = Subpage::where('conference_id', $conferenceId)
-            ->where('id', $subpageId)
-            ->firstOrFail();
-            
+                      ->where('id', $subpageId)
+                      ->firstOrFail();
+
+        if (!Auth::user()->canManageSubpage($subpage->id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $subpage->delete();
-        
         return response()->json(null, 204);
-    }
-} 
+        }
+}

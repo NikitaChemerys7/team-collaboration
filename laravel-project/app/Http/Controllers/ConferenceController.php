@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class ConferenceController extends Controller
 {
-    
+
     public function index()
     {
         return Conference::all();
     }
 
-    
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -41,7 +41,7 @@ class ConferenceController extends Controller
         return response()->json($conference, 201);
     }
 
-   
+
     public function show(string $id)
     {
         $conference = Conference::find($id);
@@ -51,13 +51,18 @@ class ConferenceController extends Controller
         return $conference;
     }
 
-    
+
     public function update(Request $request, string $id)
     {
         $conference = Conference::find($id);
         if (!$conference) {
             return response()->json(['message' => 'Conference not found'], 404);
         }
+
+        if (!Auth::user()->canManageConference($conference->id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -83,7 +88,7 @@ class ConferenceController extends Controller
         return response()->json($conference);
     }
 
-    
+
     public function destroy(string $id)
     {
         $conference = Conference::find($id);
@@ -91,10 +96,14 @@ class ConferenceController extends Controller
             return response()->json(['message' => 'Conference not found'], 404);
         }
 
+        if (!Auth::user()->canManageConference($conference->id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $conference->delete();
-        return response()->json(null, 204);
-    }
-    
+            return response()->json(null, 204);
+        }
+
     public function getEditors($id)
     {
         $conference = \App\Models\Conference::findOrFail($id);
@@ -105,6 +114,10 @@ class ConferenceController extends Controller
 
     public function assignEditor(Request $request, $id)
     {
+        if (!Auth::user()->canManageConference($id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
@@ -124,6 +137,10 @@ class ConferenceController extends Controller
 
     public function removeEditor(Request $request, $id)
     {
+        if (!Auth::user()->canManageConference($id)) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
