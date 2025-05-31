@@ -103,6 +103,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import { API_URL } from '../../config'
 
 export default {
   name: 'ProfilePage',
@@ -196,6 +197,7 @@ export default {
         }, 3000)
 
       } catch (error) {
+        console.error('Axios error:', error);
         message.value = error.response?.data?.message || 'Failed to update profile'
         messageType.value = 'error'
         
