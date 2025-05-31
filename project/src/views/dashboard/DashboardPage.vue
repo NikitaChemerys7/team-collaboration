@@ -6,13 +6,13 @@
       <p class="user-info-text">Current user: <span class="user-name">{{ user?.name || 'Admin User' }}</span></p>
       <p class="user-info-text">Role: <span class="user-role">{{ user?.role || 'admin' }}</span></p>
     </div>
-
+    <h2>Pages</h2>
     <div class="dashboard-grid">
       <router-link to="/manage-conference" class="dashboard-card conference-card" v-if="isAdmin">
         <div class="card-content">
           <div class="card-icon graduation-icon">🎓</div>
-          <h3 class="card-title">Add Conference</h3>
-          <p class="card-description">Add a new conference year</p>
+          <h3 class="card-title">Manage Conferences</h3>
+          <p class="card-description">Add, edit or delete conferences</p>
         </div>
       </router-link>
 
@@ -24,6 +24,17 @@
         </div>
       </router-link>
 
+      <router-link to="/dashboard/conferences/all/subpages" class="dashboard-card edit-card">
+        <div class="card-content">
+          <div class="card-icon edit-icon">✏️</div>
+          <h3 class="card-title">Edit Subpages</h3>
+          <p class="card-description">Edit or delete conference subpages</p>
+        </div>
+      </router-link>
+    </div>
+    <hr>
+    <h2>Users</h2>
+    <div class="dashboard-grid">
       <router-link to="/manage-users?type=editor" class="dashboard-card editor-card" v-if="isAdmin">
         <div class="card-content">
           <div class="card-icon users-icon">👥</div>
@@ -39,43 +50,39 @@
           <p class="card-description">Add a new administrator</p>
         </div>
       </router-link>
+    </div>
 
-      <router-link to="/dashboard/conferences/all/subpages" class="dashboard-card edit-card">
-        <div class="card-content">
-          <div class="card-icon edit-icon">✏️</div>
-          <h3 class="card-title">Edit Subpages</h3>
-          <p class="card-description">Edit or delete conference subpages</p>
-        </div>
-      </router-link>
-      <router-link to="/dashboard/mail" class="dashboard-card mail-card" v-if="isAdmin">
-          <div class="card-content">
-          <div class="card-icon mail-icon">✉️</div>
-          <h3 class="card-title">Send Mail</h3>
-          <p class="card-description">Send email messages to users and editors</p>
-        </div>
-      </router-link>
+    <hr>
+    <h2>Other</h2>
+    <div class="dashboard-grid"></div>
+    <router-link to="/dashboard/mail" class="dashboard-card mail-card" v-if="isAdmin">
+      <div class="card-content">
+        <div class="card-icon mail-icon">✉️</div>
+        <h3 class="card-title">Send Mail</h3>
+        <p class="card-description">Send email messages to users and editors</p>
+      </div>
+    </router-link>
 
-      <div class="dashboard-card stats-card">
-        <div class="card-content">
-          <div class="card-icon stats-icon">📊</div>
-          <h3 class="card-title stats-title">Statistics</h3>
-          <div class="stats-list">
-            <div class="stat-item">
-              <span class="stat-label">Conferences:</span>
-              <span class="stat-value">{{ stats.conferences || 0 }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Subpages:</span>
-              <span class="stat-value">{{ stats.subpages || 0 }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Total Users:</span>
-              <span class="stat-value">{{ stats.users || 0 }}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Editors:</span>
-              <span class="stat-value">{{ stats.editors || 0 }}</span>
-            </div>
+    <div class="dashboard-card stats-card">
+      <div class="card-content">
+        <div class="card-icon stats-icon">📊</div>
+        <h3 class="card-title stats-title">Statistics</h3>
+        <div class="stats-list">
+          <div class="stat-item">
+            <span class="stat-label">Conferences:</span>
+            <span class="stat-value">{{ stats.conferences || 0 }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Subpages:</span>
+            <span class="stat-value">{{ stats.subpages || 0 }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Total Users:</span>
+            <span class="stat-value">{{ stats.users || 0 }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Editors:</span>
+            <span class="stat-value">{{ stats.editors || 0 }}</span>
           </div>
         </div>
       </div>
@@ -97,7 +104,7 @@ export default defineComponent({
     const conferenceStore = useConferenceStore()
     const subpageStore = useSubpageStore()
     const userStore = useUserStore()
-    
+
     const stats = ref({
       conferences: 0,
       subpages: 0,
@@ -144,6 +151,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+hr {
+  margin: 3rem 0;
+}
+
 .dashboard-page {
   padding: 2rem;
   max-width: 1200px;
@@ -172,7 +183,8 @@ export default defineComponent({
   color: #6b7280;
 }
 
-.user-name, .user-role {
+.user-name,
+.user-role {
   font-weight: 600;
   color: #111827;
 }
@@ -192,6 +204,7 @@ export default defineComponent({
   color: inherit;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+  display: block;
 }
 
 .dashboard-card:hover {
@@ -212,15 +225,18 @@ export default defineComponent({
 }
 
 .graduation-icon {
-  color: #6366f1; /* Indigo */
+  color: #6366f1;
+  /* Indigo */
 }
 
 .document-icon {
-  color: #8b5cf6; /* Purple */
+  color: #8b5cf6;
+  /* Purple */
 }
 
 .users-icon {
-  color: #10b981; /* Green */
+  color: #10b981;
+  /* Green */
 }
 
 .admin-icon {
@@ -228,11 +244,13 @@ export default defineComponent({
 }
 
 .edit-icon {
-  color: #f59e0b; /* Orange */
+  color: #f59e0b;
+  /* Orange */
 }
 
 .stats-icon {
-  color: #6b7280; /* Gray */
+  color: #6b7280;
+  /* Gray */
 }
 
 .card-title {
@@ -300,16 +318,16 @@ export default defineComponent({
   .dashboard-page {
     padding: 1rem;
   }
-  
+
   .dashboard-title {
     font-size: 2rem;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .card-icon {
     font-size: 3rem;
   }

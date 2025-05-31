@@ -12,9 +12,9 @@
         <div class="header-right">
           <nav class="desktop-nav">
             <router-link to="/">Home</router-link>
-            <router-link to="/about">About</router-link>
+            <!-- <router-link to="/about">About</router-link> -->
             <router-link to="/conferences">Conferences</router-link>
-            <router-link to="/contact">Contact</router-link>
+            <!-- <router-link to="/contact">Contact</router-link> -->
             <template v-if="isLoggedIn">
               <router-link v-if="isAdmin || isEditor" to="/dashboard">Dashboard</router-link>
               <div class="user-menu">
