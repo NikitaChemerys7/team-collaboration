@@ -14,13 +14,6 @@ use App\Http\Controllers\DocumentController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
-Route::get('/conferences', [ConferenceController::class, 'index']);
-Route::get('/conferences/editable', [ConferenceController::class, 'getEditableConferences']);
-Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
-
-Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
-Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'show']);
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -32,18 +25,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update']);
 
+    // Conference routes
+    Route::get('/conferences/editable', [ConferenceController::class, 'getEditableConferences']);
+    Route::get('/conferences', [ConferenceController::class, 'index']);
     Route::post('/conferences', [ConferenceController::class, 'store']);
-    Route::put('/conferences/{id}', [ConferenceController::class, 'update']);
-    Route::delete('/conferences/{id}', [ConferenceController::class, 'destroy']);
+    Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
+    Route::put('/conferences/{conference}', [ConferenceController::class, 'update'])->middleware('can.manage.conference');
+    Route::delete('/conferences/{conference}', [ConferenceController::class, 'destroy'])->middleware('can.manage.conference');
 
-    Route::middleware(['role:editor', 'can.manage.conference'])->group(function () {
-        Route::get('/conferences/{conference}/edit', [ConferenceController::class, 'edit']);
-        Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
+    // Subpage routes
+    Route::middleware(['can.manage.subpage'])->group(function () {
+        Route::get('/conferences/{conference}/subpages', [SubpageController::class, 'index']);
+        Route::post('/conferences/{conference}/subpages', [SubpageController::class, 'store']);
+        Route::get('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'show']);
+        Route::put('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'update']);
+        Route::delete('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'destroy']);
     });
-
-    Route::post('/conferences/{conferenceId}/subpages', [SubpageController::class, 'store']);
-    Route::put('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'update']);
-    Route::delete('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageController::class, 'destroy']);
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [AuthController::class, 'getUsers']);

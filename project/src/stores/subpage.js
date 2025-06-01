@@ -33,12 +33,10 @@ export const useSubpageStore = defineStore('subpage', {
       const authStore = useAuthStore()
       
       try {
-        const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`, {
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
+        const response = await axios.get(
+          `${API_URL}/conferences/${conferenceId}/subpages`,
+          { headers: authStore.authHeader }
+        )
         this.subpages = response.data
         return response.data
       } catch (error) {
@@ -93,10 +91,27 @@ export const useSubpageStore = defineStore('subpage', {
       this.loading = true
       this.error = null
       try {
-        const response = await axios.post(`${API_URL}/conferences/${conferenceId}/subpages`, subpageData)
+        const data = {
+          title: subpageData.title,
+          content: subpageData.content,
+          order: subpageData.order,
+          is_published: subpageData.is_published,
+          slug: subpageData.slug
+        }
+
+        console.log('Creating subpage with data:', data)
+        
+        const authStore = useAuthStore()
+        
+        const response = await axios.post(
+          `${API_URL}/conferences/${conferenceId}/subpages`,
+          data,
+          { headers: authStore.authHeader }
+        )
         this.subpages.push(response.data)
         return response.data
       } catch (error) {
+        console.error('Error creating subpage:', error)
         this.error = error.response?.data?.message || 'Failed to create subpage'
         throw error
       } finally {

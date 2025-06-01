@@ -29,7 +29,7 @@
       >
         <option value="">Select a conference...</option>
         <option
-          v-for="conference in conferences"
+          v-for="conference in filteredConferences"
           :key="conference.id"
           :value="conference.id"
         >
@@ -116,6 +116,10 @@ export default {
     
     conferenceId() {
       return this.$route.params.conferenceId
+    },
+
+    filteredConferences() {
+      return this.conferences
     }
   },
   methods: {
@@ -124,7 +128,7 @@ export default {
       'deleteSubpage',
       'clearError'
     ]),
-    ...mapActions(useConferenceStore, ['fetchConferences']),
+    ...mapActions(useConferenceStore, ['fetchEditableConferences']),
     
     async handleConferenceChange() {
       if (this.selectedConferenceId) {
@@ -141,7 +145,8 @@ export default {
       try {
         await this.fetchSubpages(this.selectedConferenceId)
       } catch (error) {
-        this.error = error.message || 'Failed to load subpages'
+        console.error('Error loading subpages:', error)
+        this.error = 'Failed to load subpages'
       } finally {
         this.loading = false
       }
@@ -159,7 +164,8 @@ export default {
         await this.deleteSubpage(this.selectedConferenceId, subpage.id)
         await this.fetchSubpages(this.selectedConferenceId)
       } catch (error) {
-        this.error = error.message || 'Failed to delete subpage'
+        console.error('Error deleting subpage:', error)
+        this.error = 'Failed to delete subpage'
       } finally {
         this.loading = false
       }
@@ -171,24 +177,15 @@ export default {
   },
   async mounted() {
     try {
-      await this.fetchConferences()
+      await this.fetchEditableConferences()
+      
       if (this.conferenceId) {
-        if (this.conferenceId === 'new') {
-          
-          if (this.conferences.length > 0) {
-            this.selectedConferenceId = this.conferences[0].id
-          }
-        } else if (this.conferenceId === 'all') {
-         
-          this.selectedConferenceId = ''
-        } else {
-         
-          this.selectedConferenceId = this.conferenceId
-        }
+        this.selectedConferenceId = this.conferenceId
         await this.loadData()
       }
     } catch (error) {
-      this.error = error.message || 'Failed to load conferences'
+      console.error('Error initializing page:', error)
+      this.error = 'Failed to load conferences'
     }
   }
 }

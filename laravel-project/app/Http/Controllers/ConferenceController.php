@@ -16,13 +16,29 @@ class ConferenceController extends Controller
 
     public function getEditableConferences(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->user();
+        
+        if (!$user) {
+            return response()->json([
+                'error' => 'Unauthorized access.'
+            ], 401);
+        }
         
         if ($user->isAdmin()) {
-            return response()->json(Conference::all());
+            return response()->json(
+                Conference::orderBy('year', 'desc')
+                    ->orderBy('date', 'desc')
+                    ->get()
+            );
         }
         
         $managedYears = $user->managedYears()->pluck('year');
+        
+        if ($managedYears->isEmpty()) {
+            return response()->json([
+                'error' => 'You are not assigned to manage any conferences.'
+            ], 403);
+        }
         
         return response()->json(
             Conference::whereIn('year', $managedYears)

@@ -29,7 +29,7 @@
       >
         <option value="">Select a conference...</option>
         <option
-          v-for="conference in conferences"
+          v-for="conference in filteredConferences"
           :key="conference.id"
           :value="conference.id"
         >
@@ -142,7 +142,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(useSubpageStore, ['currentSubpage']),
+    ...mapState(useSubpageStore, ['currentSubpage', 'subpages']),
     ...mapState(useConferenceStore, ['conferences']),
     
     conferenceId() {
@@ -158,40 +158,46 @@ export default {
     },
     
     isFormValid() {
-      const isValid = this.form.title && 
+      return this.form.title && 
              this.form.content &&
              this.form.slug &&
              this.selectedConferenceId
-      console.log('Form validation:', {
-        title: this.form.title,
-        content: this.form.content,
-        slug: this.form.slug,
-        conferenceId: this.selectedConferenceId,
-        isValid
-      })
-      return isValid
+    },
+    
+    filteredConferences() {
+      return this.conferences
     }
   },
   methods: {
     ...mapActions(useSubpageStore, [
-      'fetchSubpage',
+      'fetchSubpages',
       'createSubpage',
       'updateSubpage',
-      'clearError'
+      'clearError',
+      'fetchSubpage'
     ]),
-    ...mapActions(useConferenceStore, ['fetchConferences']),
+    ...mapActions(useConferenceStore, ['fetchEditableConferences']),
     
     updateContent(content) {
       this.form.content = content
     },
     
     async handleConferenceChange() {
-      if (this.isEditing && this.selectedConferenceId) {
-        await this.loadSubpageData()
+      if (this.selectedConferenceId) {
+        const user = JSON.parse(localStorage.getItem('user'))
+        const conference = this.conferences.find(c => c.id === this.selectedConferenceId)
+        
+        if (!user?.isAdmin && conference && !user?.managedYears?.includes(conference.year)) {
+          this.error = 'You do not have permission to manage subpages for this conference.'
+          this.selectedConferenceId = ''
+          return
+        }
+        
+        await this.loadData()
       }
     },
     
-    async loadSubpageData() {
+    async loadData() {
       if (!this.selectedConferenceId || !this.isEditing) return
       
       this.loading = true
@@ -271,22 +277,16 @@ export default {
     }
   },
   async mounted() {
-    console.log('Component mounted', {
-      conferenceId: this.conferenceId,
-      subpageId: this.subpageId,
-      isEditing: this.isEditing
-    })
-    
     try {
-      await this.fetchConferences()
-      if (this.conferenceId && this.conferenceId !== 'list') {
+      await this.fetchEditableConferences()
+      
+      if (this.conferenceId) {
         this.selectedConferenceId = this.conferenceId
-        if (this.isEditing && this.subpageId !== 'list') {
-          await this.loadSubpageData()
-        }
+        await this.loadData()
       }
     } catch (error) {
-      this.error = error.message || 'Failed to load conferences'
+      console.error('Error initializing page:', error)
+      this.error = 'Failed to load conferences'
     }
   }
 }

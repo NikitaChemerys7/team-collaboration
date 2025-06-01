@@ -42,13 +42,16 @@ export const useAuthStore = defineStore('auth', {
 
         this.user = response.data.user
         this.token = response.data.token
+        
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        localStorage.setItem('token', response.data.token)
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+        
         if (this.user.role === 'admin' || this.user.role === 'editor') {
           router.push('/dashboard')
         } else {
           router.push('/')
         }
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        localStorage.setItem('token', response.data.token)
         return true
       } catch (error) {
         this.error = error.response?.data?.message || 'Login failed'

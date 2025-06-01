@@ -45,5 +45,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\CheckRole::class,
         'can.manage.conference' => \App\Http\Middleware\CanManageConference::class,
+        'can.manage.subpage' => \App\Http\Middleware\CanManageSubpage::class,
     ];
 }
