@@ -20,14 +20,6 @@ class ConferenceSeeder extends Seeder
             'date' => '2024-10-02',
             'location' => 'Oberaichwald, Carinthia, Austria',
             'description' => 'The 32nd International Symposium Animal Science Days (ASD) is a prestigious annual event bringing together scientists, professionals, and students from the field of animal science. The 2024 edition will be hosted in the scenic region of Oberaichwald, near Faaker See, from October 2 to 4, 2024.',
-            'hero_image' => 'asd2024-hero.jpg',
-            'gallery' => json_encode(['asd2024-1.jpg', 'asd2024-2.jpg', 'asd2024-3.jpg']),
-            'files' => json_encode(['program2024.pdf', 'accommodation2024.pdf']),
-            'speakers' => json_encode([
-                ['name' => 'Prof. Peter Dovč', 'title' => 'University of Ljubljana, Slovenia'],
-                ['name' => 'Prof. Radovan Kasarda', 'title' => 'Slovak University of Agriculture, Slovakia'],
-                ['name' => 'Dr. Anna Müller', 'title' => 'University of Vienna, Austria'],
-            ]),
         ]);
 
         $conf1->subpages()->createMany([
@@ -102,13 +94,6 @@ HTML,
             'date' => '2023-09-20',
             'location' => 'Lipica, Slovenia',
             'description' => 'The 31st International Symposium ASD 2023 was successfully held in Lipica, Slovenia. It brought together experts and students from all over Europe to discuss innovations and sustainability in livestock production.',
-            'hero_image' => 'asd2023-hero.jpg',
-            'gallery' => json_encode(['asd2023-1.jpg', 'asd2023-2.jpg']),
-            'files' => json_encode(['schedule2023.pdf', 'abstracts2023.pdf']),
-            'speakers' => json_encode([
-                ['name' => 'Prof. Ivona Djurkin Kušec', 'title' => 'University of Osijek, Croatia'],
-                ['name' => 'Prof. Wilhelm Knaus', 'title' => 'University of Natural Resources and Life Sciences, Austria'],
-            ]),
         ]);
 
         $conf2->subpages()->createMany([
