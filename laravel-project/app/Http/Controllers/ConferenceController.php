@@ -117,10 +117,9 @@ class ConferenceController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-
-        if (!$user->isAdmin() && !$user->canManageYear($request->year)) {
+        if (!$user->isAdmin() && !$user->canManageYear($conference->year)) {
             return response()->json([
-                'error' => 'You do not have permission to update conferences for this year.'
+                'error' => 'You do not have permission to update this conference.'
             ], 403);
         }
 
@@ -132,9 +131,17 @@ class ConferenceController extends Controller
 
     public function destroy(string $id)
     {
+        $user = auth()->user();
         $conference = Conference::find($id);
+        
         if (!$conference) {
             return response()->json(['message' => 'Conference not found'], 404);
+        }
+
+        if (!$user->isAdmin() && !$user->canManageYear($conference->year)) {
+            return response()->json([
+                'error' => 'You do not have permission to delete this conference.'
+            ], 403);
         }
 
         $conference->delete();

@@ -34,8 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Conference routes
     Route::get('/conferences/editable', [ConferenceController::class, 'getEditableConferences']);
     Route::post('/conferences', [ConferenceController::class, 'store']);
-    Route::put('/conferences/{conference}', [ConferenceController::class, 'update'])->middleware('can.manage.conference');
-    Route::delete('/conferences/{conference}', [ConferenceController::class, 'destroy'])->middleware('can.manage.conference');
+    Route::put('/conferences/{conference}', [ConferenceController::class, 'update']);
+    Route::delete('/conferences/{conference}', [ConferenceController::class, 'destroy']);
 
     // Subpage routes
     Route::middleware(['can.manage.subpage'])->group(function () {
