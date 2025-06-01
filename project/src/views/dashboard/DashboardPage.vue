@@ -16,6 +16,14 @@
         </div>
       </router-link>
 
+      <router-link to="/manage-conference" class="dashboard-card conference-card" v-if="isEditor">
+        <div class="card-content">
+          <div class="card-icon graduation-icon">🎓</div>
+          <h3 class="card-title">Manage Conferences</h3>
+          <p class="card-description">Manage your assigned conferences</p>
+        </div>
+      </router-link>
+
       <router-link to="/dashboard/conferences/new/subpages" class="dashboard-card subpage-card">
         <div class="card-content">
           <div class="card-icon document-icon">📄</div>
@@ -189,6 +197,9 @@ export default defineComponent({
     const deleting = ref(null)
     const fileInput = ref(null)
     const selectedFile = ref(null)
+    const user = ref(null)
+    const isAdmin = ref(false)
+    const isEditor = ref(false)
 
     const loadStats = async () => {
       try {
@@ -290,14 +301,17 @@ export default defineComponent({
       if (!authStore.user) {
         await authStore.fetchCurrentUser()
       }
-      await loadStats()
-      await fetchDocuments()
+      user.value = authStore.user
+      isAdmin.value = user.value?.role === 'admin'
+      isEditor.value = user.value?.role === 'editor'
+      loadStats()
+      fetchDocuments()
     })
 
     return {
-      user: authStore.user,
-      isAdmin: authStore.isAdmin,
-      isEditor: authStore.isEditor,
+      user,
+      isAdmin,
+      isEditor,
       stats,
       documents,
       uploading,

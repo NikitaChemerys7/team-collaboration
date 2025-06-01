@@ -233,4 +233,26 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password reset error'], 400);
     }
 
+    public function getManagedYears()
+    {
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            
+            $years = \App\Models\Conference::distinct()->pluck('year')->toArray();
+            $currentYear = date('Y');
+            if (!in_array($currentYear, $years)) {
+                $years[] = $currentYear;
+            }
+            sort($years);
+            return response()->json([
+                'years' => $years
+            ]);
+        }
+        
+        return response()->json([
+            'years' => $user->managedYears()->pluck('year')
+        ]);
+    }
+
 }

@@ -11,12 +11,31 @@ class ConferenceController extends Controller
 
     public function index()
     {
-        return Conference::all();
+        return response()->json(Conference::all());
     }
 
+    public function getEditableConferences(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->isAdmin()) {
+            return response()->json(Conference::all());
+        }
+        
+        $managedYears = $user->managedYears()->pluck('year');
+        
+        return response()->json(
+            Conference::whereIn('year', $managedYears)
+                ->orderBy('year', 'desc')
+                ->orderBy('date', 'desc')
+                ->get()
+        );
+    }
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'year' => 'required|integer',
@@ -31,6 +50,14 @@ class ConferenceController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        if (!$user->isAdmin()) {
+            if (!$user->canManageYear($request->year)) {
+                return response()->json([
+                    'error' => 'You do not have permission to create conferences for this year.'
+                ], 403);
+            }
         }
 
         $data = $request->all();
@@ -51,7 +78,9 @@ class ConferenceController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
         $conference = Conference::find($id);
+        
         if (!$conference) {
             return response()->json(['message' => 'Conference not found'], 404);
         }
@@ -72,6 +101,13 @@ class ConferenceController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+
+        if (!$user->isAdmin() && !$user->canManageYear($request->year)) {
+            return response()->json([
+                'error' => 'You do not have permission to update conferences for this year.'
+            ], 403);
+        }
+
         $data = $request->all();
         $conference->update($data);
         return response()->json($conference);
@@ -89,43 +125,46 @@ class ConferenceController extends Controller
         return response()->json(null, 204);
     }
 
-    public function getEditors($id)
+    public function getEditors($year)
     {
-        $conference = \App\Models\Conference::findOrFail($id);
+        $editors = User::whereHas('managedYears', function($query) use ($year) {
+            $query->where('year', $year);
+        })->select('id', 'name', 'email')->get();
+
         return response()->json([
-            'editors' => $conference->editors()->select('id', 'name', 'email')->get()
+            'editors' => $editors
         ]);
     }
 
-    public function assignEditor(Request $request, $id)
+    public function assignEditor(Request $request, $year)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $conference = Conference::findOrFail($id);
         $user = User::findOrFail($request->user_id);
+        
+        if ($user->managedYears()->where('year', $year)->exists()) {
+            return response()->json(['message' => 'User is already assigned to this year'], 422);
+        }
 
-        $user->managedConferences()->syncWithoutDetaching([
-            $conference->id => [
-                'granted_at' => now(),
-                'granted_by_user_id' => auth()->id(),
-            ]
+        $user->managedYears()->create([
+            'year' => $year,
+            'granted_by_user_id' => auth()->id(),
+            'granted_at' => now()
         ]);
 
         return response()->json(['message' => 'Editor assigned successfully']);
     }
 
-    public function removeEditor(Request $request, $id)
+    public function removeEditor(Request $request, $year)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $conference = Conference::findOrFail($id);
         $user = User::findOrFail($request->user_id);
-
-        $user->managedConferences()->detach($conference->id);
+        $user->managedYears()->where('year', $year)->delete();
 
         return response()->json(['message' => 'Editor removed']);
     }

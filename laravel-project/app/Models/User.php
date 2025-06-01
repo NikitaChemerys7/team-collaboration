@@ -72,14 +72,31 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
+    public function managedYears()
+    {
+        return $this->hasMany(\App\Models\UserManagesYear::class);
+    }
+
+    public function canManageYear($year)
+    {
+        return $this->isAdmin() || $this->managedYears()->where('year', $year)->exists();
+    }
+
     public function canManageConference($conferenceId)
     {
-        return $this->isAdmin() || $this->managedConferences()->where('conference_id', $conferenceId)->exists();
+        if ($this->isAdmin()) return true;
+        
+        $conference = \App\Models\Conference::find($conferenceId);
+        if (!$conference) return false;
+        
+        return $this->canManageYear($conference->year);
     }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyEmailNotification);

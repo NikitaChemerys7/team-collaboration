@@ -90,7 +90,7 @@ const routes = [
     path: '/manage-conference/:id?',
     name: 'manage-conference',
     component: ManageConferencePage,
-    meta: { title: 'Manage Conference', requiresAuth: true, roles: ['admin'] }
+    meta: { title: 'Manage Conference', requiresAuth: true, roles: ['admin', 'editor'] }
   },
   {
     path: '/dashboard/users',

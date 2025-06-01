@@ -15,6 +15,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
 Route::get('/conferences', [ConferenceController::class, 'index']);
+Route::get('/conferences/editable', [ConferenceController::class, 'getEditableConferences']);
 Route::get('/conferences/{id}', [ConferenceController::class, 'show']);
 
 Route::get('/conferences/{conferenceId}/subpages', [SubpageController::class, 'index']);
@@ -23,6 +24,7 @@ Route::get('/conferences/{conferenceId}/subpages/{subpageId}', [SubpageControlle
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/user/managed-years', [AuthController::class, 'getManagedYears']);
 
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -48,9 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users', [AuthController::class, 'createUser']);
         Route::put('/users/{id}', [AuthController::class, 'updateUser']);
         Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
-        Route::get('/conferences/{conference}/editors', [ConferenceController::class, 'getEditors']);
-        Route::post('/conferences/{conference}/assign-editor', [ConferenceController::class, 'assignEditor']);
-        Route::post('/conferences/{conference}/remove-editor', [ConferenceController::class, 'removeEditor']);
+        Route::get('/years/{year}/editors', [ConferenceController::class, 'getEditors']);
+        Route::post('/years/{year}/assign-editor', [ConferenceController::class, 'assignEditor']);
+        Route::post('/years/{year}/remove-editor', [ConferenceController::class, 'removeEditor']);
         Route::post('/conferences/{conference}/hero-image', [ConferenceController::class, 'uploadHeroImage']);
         Route::delete('/conferences/{conference}/hero-image', [ConferenceController::class, 'removeHeroImage']);
     });

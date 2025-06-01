@@ -17,7 +17,7 @@
             {{ year }}
           </button>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" v-if="isAdmin">
           <input
             v-model="newYear"
             type="number"
@@ -81,7 +81,7 @@
                 type="number"
                 class="form-control"
                 required
-                :disabled="saving"
+                :disabled="saving || !isAdmin"
               />
             </div>
             <div class="form-group">
@@ -229,6 +229,58 @@
             </button>
           </div>
 
+          <div class="form-group" v-if="isAdmin">
+            <label class="form-label">Year Editors</label>
+            <div class="editors-section">
+              <div class="current-editors">
+                <h4>Current Editors for {{ selectedYear }}</h4>
+                <div v-if="loadingEditors" class="loading-editors">
+                  Loading editors...
+                </div>
+                <div v-else-if="editors.length === 0" class="no-editors">
+                  No editors assigned for this year
+                </div>
+                <div v-else class="editors-list">
+                  <div v-for="editor in editors" :key="editor.id" class="editor-item">
+                    <span>{{ editor.name }} ({{ editor.email }})</span>
+                    <button
+                      type="button"
+                      @click="removeEditor(editor.id)"
+                      class="btn btn-danger btn-sm"
+                      :disabled="saving"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="add-editor-section">
+                <h4>Add Editor</h4>
+                <div class="editor-search">
+                  <input
+                    v-model="editorSearch"
+                    type="text"
+                    class="form-control"
+                    placeholder="Search users..."
+                    @input="searchUsers"
+                    :disabled="saving"
+                  />
+                  <div v-if="searchResults.length > 0" class="search-results">
+                    <div
+                      v-for="user in searchResults"
+                      :key="user.id"
+                      class="search-result-item"
+                      @click="assignEditor(user.id)"
+                    >
+                      {{ user.name }} ({{ user.email }})
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="form-actions">
             <button
               v-if="editingId"
@@ -272,6 +324,12 @@ const selectedYear = ref(new Date().getFullYear())
 const galleryInput = ref('')
 const newYear = ref('')
 const years = ref([new Date().getFullYear()])
+const editors = ref([])
+const loadingEditors = ref(false)
+const editorSearch = ref('')
+const searchResults = ref([])
+const isAdmin = ref(false)
+const userManagedYears = ref([])
 
 const editorConfig = {
   height: 400,
@@ -302,15 +360,37 @@ const form = ref({
 
 const heroImageInput = ref(null)
 
+async function fetchUserManagedYears() {
+  try {
+    const response = await axios.get(`${API_URL}/user/managed-years`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    userManagedYears.value = response.data.years
+    if (!isAdmin.value && userManagedYears.value.length > 0) {
+      selectedYear.value = userManagedYears.value[0]
+    }
+  } catch (error) {
+    console.error('Error fetching managed years:', error)
+  }
+}
+
 watch(() => store.conferences, (conferences) => {
-  const allYears = conferences.map(c => c.year)
-  const unique = Array.from(new Set([...allYears, new Date().getFullYear()]))
-  years.value = unique.sort((a, b) => b - a)
+  if (isAdmin.value) {
+    // For admins, get all unique years from conferences
+    const allYears = conferences.map(c => c.year)
+    const unique = Array.from(new Set([...allYears, new Date().getFullYear()]))
+    years.value = unique.sort((a, b) => b - a)
+  } else {
+    // For editors, only show their assigned years
+    years.value = userManagedYears.value
+  }
 }, { immediate: true })
 
-const filteredConferences = computed(() =>
-  store.conferences.filter(c => c.year === selectedYear.value)
-)
+const filteredConferences = computed(() => {
+  return store.conferences.filter(c => c.year === selectedYear.value)
+})
 
 function resetForm() {
   form.value = {
@@ -335,22 +415,102 @@ function startCreate() {
 
 async function editConference(id) {
   loading.value = true
-  await store.fetchConferenceById(id)
-  const conf = store.currentConference
-  if (conf) {
-    form.value = JSON.parse(JSON.stringify(conf))
-    if (form.value.date) {
-      form.value.date = new Date(form.value.date).toISOString().split('T')[0]
+  try {
+    await store.fetchConferenceById(id)
+    const conf = store.currentConference
+    if (conf) {
+      form.value = JSON.parse(JSON.stringify(conf))
+      if (form.value.date) {
+        form.value.date = new Date(form.value.date).toISOString().split('T')[0]
+      }
+      if (form.value.hero_image) {
+        form.value.hero_image = `${API_URL.replace('/api', '')}${form.value.hero_image.startsWith('/') ? '' : '/'}${form.value.hero_image}`
+      }
+      galleryInput.value = conf.gallery ? conf.gallery.join(', ') : ''
+      editingId.value = conf.id
+      selectedYear.value = conf.year
+      router.replace({ name: 'manage-conference', params: { id: conf.id } })
+      if (isAdmin.value) {
+        await loadEditors()
+      }
     }
-    if (form.value.hero_image) {
-      form.value.hero_image = `${API_URL.replace('/api', '')}${form.value.hero_image.startsWith('/') ? '' : '/'}${form.value.hero_image}`
-    }
-    galleryInput.value = conf.gallery ? conf.gallery.join(', ') : ''
-    editingId.value = conf.id
-    selectedYear.value = conf.year
-    router.replace({ name: 'manage-conference', params: { id: conf.id } })
+  } catch (error) {
+    console.error('Error loading conference:', error)
+  } finally {
+    loading.value = false
   }
-  loading.value = false
+}
+
+async function loadEditors() {
+  loadingEditors.value = true
+  try {
+    const response = await axios.get(`${API_URL}/years/${selectedYear.value}/editors`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    editors.value = response.data.editors
+  } catch (error) {
+    console.error('Error loading editors:', error)
+  } finally {
+    loadingEditors.value = false
+  }
+}
+
+async function searchUsers() {
+  if (!editorSearch.value) {
+    searchResults.value = []
+    return
+  }
+  
+  try {
+    const response = await axios.get(`${API_URL}/users?search=${editorSearch.value}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    searchResults.value = response.data.filter(user => 
+      user.role === 'editor' && !editors.value.some(editor => editor.id === user.id)
+    )
+  } catch (error) {
+    console.error('Error searching users:', error)
+  }
+}
+
+async function assignEditor(userId) {
+  try {
+    await axios.post(
+      `${API_URL}/years/${selectedYear.value}/assign-editor`,
+      { user_id: userId },
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
+    await loadEditors()
+    editorSearch.value = ''
+    searchResults.value = []
+  } catch (error) {
+    console.error('Error assigning editor:', error)
+  }
+}
+
+async function removeEditor(userId) {
+  try {
+    await axios.post(
+      `${API_URL}/years/${selectedYear.value}/remove-editor`,
+      { user_id: userId },
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
+    await loadEditors()
+  } catch (error) {
+    console.error('Error removing editor:', error)
+  }
 }
 
 function addSpeaker() {
@@ -376,6 +536,11 @@ watch(galleryInput, (val) => {
 async function saveConference() {
   saving.value = true
   try {
+    // For editors, ensure they can only save conferences for their assigned years
+    if (!isAdmin.value && !userManagedYears.value.includes(form.value.year)) {
+      throw new Error('You can only create/edit conferences for years you are assigned to manage')
+    }
+
     const dataToSave = {
       ...form.value,
       date: form.value.date ? new Date(form.value.date).toISOString().split('T')[0] : null
@@ -435,6 +600,7 @@ async function saveConference() {
   } catch (error) {
     console.error('Error saving conference:', error)
     saving.value = false
+    alert(error.message || 'Error saving conference')
   }
 }
 
@@ -497,11 +663,43 @@ const removeHeroImage = async () => {
 
 onMounted(async () => {
   loading.value = true
-  await store.fetchConferences()
-  loading.value = false
-  if (route.params.id) {
-    editConference(Number(route.params.id))
+  try {
+    await store.fetchConferences()
+    
+    // Check if user is admin
+    const user = JSON.parse(localStorage.getItem('user'))
+    isAdmin.value = user?.role === 'admin'
+    
+    if (isAdmin.value) {
+      // For admins, set the selected year to the most recent year
+      const allYears = store.conferences.map(c => c.year)
+      if (allYears.length > 0) {
+        selectedYear.value = Math.max(...allYears)
+      } else {
+        selectedYear.value = new Date().getFullYear()
+      }
+    } else {
+      // For editors, fetch their managed years
+      await fetchUserManagedYears()
+    }
+    
+    if (route.params.id) {
+      await editConference(Number(route.params.id))
+    }
+  } catch (error) {
+    console.error('Error initializing page:', error)
+  } finally {
+    loading.value = false
   }
+})
+
+// Update the watch for selectedYear
+watch(selectedYear, async (newYear) => {
+  if (isAdmin.value) {
+    await loadEditors()
+  }
+  // Reset form when changing years
+  resetForm()
 })
 </script>
 
@@ -807,5 +1005,85 @@ onMounted(async () => {
   gap: 10px;
   flex-wrap: wrap;
   align-items: flex-start;
+}
+
+.editors-section {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.current-editors {
+  margin-bottom: 1.5rem;
+}
+
+.current-editors h4,
+.add-editor-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+.loading-editors,
+.no-editors {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.editors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--color-background);
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.editor-item span {
+  color: var(--color-text);
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.editor-search {
+  position: relative;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
 }
 </style>

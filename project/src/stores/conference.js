@@ -25,16 +25,43 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
+      const authStore = useAuthStore()
+      
       try {
-        const response = await axios.get(`${API_URL}/conferences`, {
-          headers: {
-            'Accept': 'application/json'
-          }
-        })
+        const response = await axios.get(
+          `${API_URL}/conferences`,
+          { headers: authStore.authHeader }
+        )
+        
         this.conferences = response.data
+        return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch conferences'
         console.error('Error fetching conferences:', error)
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async fetchEditableConferences() {
+      this.loading = true
+      this.error = null
+      
+      const authStore = useAuthStore()
+      
+      try {
+        const response = await axios.get(
+          `${API_URL}/conferences/editable`,
+          { headers: authStore.authHeader }
+        )
+        
+        this.conferences = response.data
+        return response.data
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Failed to fetch editable conferences'
+        console.error('Error fetching editable conferences:', error)
+        return []
       } finally {
         this.loading = false
       }
