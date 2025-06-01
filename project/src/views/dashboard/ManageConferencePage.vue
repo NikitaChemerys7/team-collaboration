@@ -4,7 +4,7 @@
     <aside class="sidebar bg-gray-50 p-8 w-72 flex-shrink-0 border-r">
       <h2 class="text-2xl font-bold mb-8">Conferences</h2>
       <div class="mb-8">
-        <div class="flex gap-4 items-center flex-wrap mb-4">
+        <div class="flex gap-4 items-center flex-wrap mb-4 conference-years">
           <button
             v-for="year in years"
             :key="year"
@@ -801,5 +801,11 @@ onMounted(async () => {
   grid-template-columns: 1fr 1fr 1fr auto;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
+}
+
+.conference-years {
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 </style>

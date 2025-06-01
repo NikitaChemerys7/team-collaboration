@@ -96,6 +96,67 @@
         </div>
       </div>
     </div>
+
+    <!-- Documents Section -->
+    <div class="card mb-6">
+      <h2 class="text-xl font-semibold mb-4">Documents</h2>
+      <div class="mb-4">
+        <div class="upload-form">
+          <div class="file-input-container">
+            <input
+              type="file"
+              ref="fileInput"
+              @change="onFileSelected"
+              accept=".pdf,.doc,.docx"
+              class="file-input"
+            />
+            <span class="selected-file" v-if="selectedFile">{{ selectedFile.name }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="uploading || !selectedFile"
+            @click="handleFileUpload"
+          >
+            {{ uploading ? 'Uploading...' : 'Upload Document' }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="documents-list">
+        <div v-if="documents.length === 0" class="text-gray-500">
+          No documents uploaded yet.
+        </div>
+        <div v-else class="space-y-2">
+          <div v-for="doc in documents" :key="doc.id" class="document-item">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+              <div class="flex items-center">
+                <i class="fas fa-file-alt text-gray-500 mr-2"></i>
+                <a :href="getDocumentUrl(doc.url)" target="_blank" class="text-blue-600 hover:underline">
+                  {{ doc.name }}
+                </a>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="copyDocumentUrl(doc.url)"
+                  class="btn btn-secondary"
+                  :title="'Copy relative URL'"
+                >
+                  Copy URL
+                </button>
+                <button
+                  @click="deleteDocument(doc.id)"
+                  class="btn btn-danger"
+                  :disabled="deleting === doc.id"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -105,6 +166,8 @@ import { useAuthStore } from '../../stores/auth'
 import { useConferenceStore } from '../../stores/conference'
 import { useSubpageStore } from '../../stores/subpage'
 import { useUserStore } from '../../stores/user'
+import axios from 'axios'
+import { API_URL } from '../../config'
 
 export default defineComponent({
   name: 'DashboardPage',
@@ -120,6 +183,12 @@ export default defineComponent({
       users: 0,
       editors: 0
     })
+
+    const documents = ref([])
+    const uploading = ref(false)
+    const deleting = ref(null)
+    const fileInput = ref(null)
+    const selectedFile = ref(null)
 
     const loadStats = async () => {
       try {
@@ -139,18 +208,108 @@ export default defineComponent({
       }
     }
 
+    async function fetchDocuments() {
+      try {
+        const response = await axios.get(`${API_URL}/documents`)
+        documents.value = response.data
+      } catch (error) {
+        console.error('Error fetching documents:', error)
+      }
+    }
+
+    async function handleFileUpload() {
+      console.log('handleFileUpload called')
+      if (!selectedFile.value) {
+        console.log('No file selected')
+        return
+      }
+
+      console.log('Starting upload for file:', selectedFile.value.name)
+      uploading.value = true
+      const formData = new FormData()
+      formData.append('file', selectedFile.value)
+      formData.append('name', selectedFile.value.name)
+
+      try {
+        console.log('Sending upload request to:', `${API_URL}/documents`)
+        const response = await axios.post(`${API_URL}/documents`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        console.log('Upload successful:', response.data)
+        documents.value.push(response.data)
+        selectedFile.value = null
+        if (fileInput.value) {
+          fileInput.value.value = null
+        }
+      } catch (error) {
+        console.error('Error uploading document:', error)
+        alert('Failed to upload document')
+      } finally {
+        uploading.value = false
+      }
+    }
+
+    function onFileSelected(event) {
+      console.log('File selected:', event.target.files[0])
+      selectedFile.value = event.target.files[0]
+      console.log('selectedFile ref updated:', selectedFile.value)
+    }
+
+    async function deleteDocument(id) {
+      if (!confirm('Are you sure you want to delete this document?')) return
+
+      deleting.value = id
+      try {
+        await axios.delete(`${API_URL}/documents/${id}`)
+        documents.value = documents.value.filter(doc => doc.id !== id)
+      } catch (error) {
+        console.error('Error deleting document:', error)
+        alert('Failed to delete document')
+      } finally {
+        deleting.value = null
+      }
+    }
+
+    function getDocumentUrl(url) {
+      return `${API_URL.replace('/api', '')}${url}`
+    }
+
+    async function copyDocumentUrl(url) {
+      try {
+        await navigator.clipboard.writeText(url)
+        alert('URL copied to clipboard!')
+      } catch (err) {
+        console.error('Failed to copy URL:', err)
+        alert('Failed to copy URL')
+      }
+    }
+
     onMounted(async () => {
       if (!authStore.user) {
         await authStore.fetchCurrentUser()
       }
       await loadStats()
+      await fetchDocuments()
     })
 
     return {
       user: authStore.user,
       isAdmin: authStore.isAdmin,
       isEditor: authStore.isEditor,
-      stats
+      stats,
+      documents,
+      uploading,
+      deleting,
+      fileInput,
+      selectedFile,
+      onFileSelected,
+      handleFileUpload,
+      deleteDocument,
+      copyDocumentUrl,
+      getDocumentUrl,
+      API_URL
     }
   }
 })
@@ -347,5 +506,110 @@ hr {
 
 .settings-icon {
   color: #64748b; /* Slate */
+}
+
+.document-item {
+  transition: all 0.2s ease;
+}
+
+.document-item:hover {
+  transform: translateY(-1px);
+}
+
+.document-item button {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.document-item:hover button {
+  opacity: 1;
+}
+
+.upload-form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.file-input-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-input {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  width: 100%;
+}
+
+.selected-file {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-primary:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.btn-danger:disabled {
+  background-color: #fca5a5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.btn-secondary:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 </style>

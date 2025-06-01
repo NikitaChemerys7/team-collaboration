@@ -64,7 +64,7 @@
             <a 
               v-for="file in conference.files" 
               :key="file.name"
-              :href="file.url"
+              :href="getDocumentUrl(file.url)"
               target="_blank"
               class="document-link"
             >
@@ -168,6 +168,10 @@ function truncateContent(content) {
   if (!content) return ''
   const strippedContent = content.replace(/<[^>]*>/g, '')
   return strippedContent.length > 150 ? strippedContent.substring(0, 150) + '...' : strippedContent
+}
+
+function getDocumentUrl(url) {
+  return `${API_URL.replace('/api', '')}${url}`
 }
 
 onMounted(fetchConference)

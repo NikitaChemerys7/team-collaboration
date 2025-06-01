@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DocumentController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -53,6 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/conferences/{conference}/hero-image', [ConferenceController::class, 'uploadHeroImage']);
         Route::delete('/conferences/{conference}/hero-image', [ConferenceController::class, 'removeHeroImage']);
     });
+
+    Route::get('/documents', [DocumentController::class, 'index']);
+    Route::post('/documents', [DocumentController::class, 'store']);
+    Route::delete('/documents/{id}', [DocumentController::class, 'destroy']);
 });
 
 Route::post('/password/email', [AuthController::class, 'sendResetLinkEmail']);
