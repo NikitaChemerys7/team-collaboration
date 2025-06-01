@@ -156,7 +156,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Documents</label>
+            <label class="form-label">Documents (10 MB or less)</label>
             <div v-for="(file, idx) in form.files" :key="idx" class="file-input-group">
               <input
                 v-model="file.name"
