@@ -25,14 +25,8 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
-        const response = await axios.get(
-          `${API_URL}/conferences`,
-          { headers: authStore.authHeader }
-        )
-        
+        const response = await axios.get(`${API_URL}/conferences`)
         this.conferences = response.data
         return response.data
       } catch (error) {
@@ -88,8 +82,14 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
+      const authStore = useAuthStore()
+      
       try {
-        const response = await axios.post(`${API_URL}/conferences`, conferenceData)
+        const response = await axios.post(
+          `${API_URL}/conferences`,
+          conferenceData,
+          { headers: authStore.authHeader }
+        )
         this.conferences.push(response.data)
         return response.data
       } catch (error) {
@@ -105,8 +105,14 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
+      const authStore = useAuthStore()
+      
       try {
-        const response = await axios.put(`${API_URL}/conferences/${id}`, conferenceData)
+        const response = await axios.put(
+          `${API_URL}/conferences/${id}`,
+          conferenceData,
+          { headers: authStore.authHeader }
+        )
         const index = this.conferences.findIndex(c => c.id === id)
         if (index !== -1) {
           this.conferences[index] = response.data
@@ -125,8 +131,13 @@ export const useConferenceStore = defineStore('conference', {
       this.loading = true
       this.error = null
       
+      const authStore = useAuthStore()
+      
       try {
-        await axios.delete(`${API_URL}/conferences/${id}`)
+        await axios.delete(
+          `${API_URL}/conferences/${id}`,
+          { headers: authStore.authHeader }
+        )
         this.conferences = this.conferences.filter(c => c.id !== id)
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete conference'

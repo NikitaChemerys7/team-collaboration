@@ -30,13 +30,8 @@ export const useSubpageStore = defineStore('subpage', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
-        const response = await axios.get(
-          `${API_URL}/conferences/${conferenceId}/subpages`,
-          { headers: authStore.authHeader }
-        )
+        const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages`)
         this.subpages = response.data
         return response.data
       } catch (error) {
@@ -61,24 +56,16 @@ export const useSubpageStore = defineStore('subpage', {
       this.loading = true
       this.error = null
       
-      const authStore = useAuthStore()
-      
       try {
         try {
-          const response = await axios.get(
-            `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
-            { headers: authStore.authHeader }
-          )
+          const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
           
           if (response.data) {
             this.currentSubpage = response.data
             return response.data
           }
         } catch (idError) {
-          const response = await axios.get(
-            `${API_URL}/conferences/${conferenceId}/subpages/by-slug/${subpageId}`,
-            { headers: authStore.authHeader }
-          )
+          const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages/by-slug/${subpageId}`)
           
           if (response.data) {
             this.currentSubpage = response.data
@@ -153,16 +140,12 @@ export const useSubpageStore = defineStore('subpage', {
 
         console.log('Updating subpage with data:', data)
         
+        const authStore = useAuthStore()
+        
         const response = await axios.put(
           `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
           data,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+          { headers: authStore.authHeader }
         )
         
         this.currentSubpage = response.data
@@ -190,8 +173,14 @@ export const useSubpageStore = defineStore('subpage', {
 
       this.loading = true
       this.error = null
+      
+      const authStore = useAuthStore()
+      
       try {
-        await axios.delete(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
+        await axios.delete(
+          `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
+          { headers: authStore.authHeader }
+        )
         this.subpages = this.subpages.filter(sp => sp.id !== subpageId)
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete subpage'

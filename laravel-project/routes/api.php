@@ -14,6 +14,12 @@ use App\Http\Controllers\DocumentController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
+// Public routes
+Route::get('/conferences', [ConferenceController::class, 'index']);
+Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
+Route::get('/conferences/{conference}/subpages', [SubpageController::class, 'index']);
+Route::get('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -27,17 +33,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Conference routes
     Route::get('/conferences/editable', [ConferenceController::class, 'getEditableConferences']);
-    Route::get('/conferences', [ConferenceController::class, 'index']);
     Route::post('/conferences', [ConferenceController::class, 'store']);
-    Route::get('/conferences/{conference}', [ConferenceController::class, 'show']);
     Route::put('/conferences/{conference}', [ConferenceController::class, 'update'])->middleware('can.manage.conference');
     Route::delete('/conferences/{conference}', [ConferenceController::class, 'destroy'])->middleware('can.manage.conference');
 
     // Subpage routes
     Route::middleware(['can.manage.subpage'])->group(function () {
-        Route::get('/conferences/{conference}/subpages', [SubpageController::class, 'index']);
         Route::post('/conferences/{conference}/subpages', [SubpageController::class, 'store']);
-        Route::get('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'show']);
         Route::put('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'update']);
         Route::delete('/conferences/{conference}/subpages/{subpage}', [SubpageController::class, 'destroy']);
     });
