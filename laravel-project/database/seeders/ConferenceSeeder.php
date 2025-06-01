@@ -20,6 +20,9 @@ class ConferenceSeeder extends Seeder
             'date' => '2024-10-02',
             'location' => 'Oberaichwald, Carinthia, Austria',
             'description' => 'The 32nd International Symposium Animal Science Days (ASD) is a prestigious annual event bringing together scientists, professionals, and students from the field of animal science. The 2024 edition will be hosted in the scenic region of Oberaichwald, near Faaker See, from October 2 to 4, 2024.',
+            'gallery' => [],
+            'files' => [],
+            'speakers' => [],
         ]);
 
         $conf1->subpages()->createMany([
@@ -94,6 +97,9 @@ HTML,
             'date' => '2023-09-20',
             'location' => 'Lipica, Slovenia',
             'description' => 'The 31st International Symposium ASD 2023 was successfully held in Lipica, Slovenia. It brought together experts and students from all over Europe to discuss innovations and sustainability in livestock production.',
+            'gallery' => [],
+            'files' => [],
+            'speakers' => [],
         ]);
 
         $conf2->subpages()->createMany([
