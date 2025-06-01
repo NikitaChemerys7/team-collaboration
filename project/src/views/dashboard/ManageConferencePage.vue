@@ -120,7 +120,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Hero Image</label>
+            <label class="form-label">Hero image (1MB or less)</label>
             <div class="hero-image-section">
               <div v-if="form.hero_image" class="hero-image-preview">
                 <img 
@@ -195,7 +195,7 @@
               <input
                 v-model="speaker.name"
                 class="form-control"
-                placeholder="Name"
+                placeholder="Name and surname"
                 :disabled="saving"
               />
               <input
@@ -378,12 +378,10 @@ async function fetchUserManagedYears() {
 
 watch(() => store.conferences, (conferences) => {
   if (isAdmin.value) {
-    // For admins, get all unique years from conferences
     const allYears = conferences.map(c => c.year)
     const unique = Array.from(new Set([...allYears, new Date().getFullYear()]))
     years.value = unique.sort((a, b) => b - a)
   } else {
-    // For editors, only show their assigned years
     years.value = userManagedYears.value
   }
 }, { immediate: true })
@@ -536,7 +534,6 @@ watch(galleryInput, (val) => {
 async function saveConference() {
   saving.value = true
   try {
-    // For editors, ensure they can only save conferences for their assigned years
     if (!isAdmin.value && !userManagedYears.value.includes(form.value.year)) {
       throw new Error('You can only create/edit conferences for years you are assigned to manage')
     }
@@ -666,12 +663,10 @@ onMounted(async () => {
   try {
     await store.fetchConferences()
     
-    // Check if user is admin
     const user = JSON.parse(localStorage.getItem('user'))
     isAdmin.value = user?.role === 'admin'
     
     if (isAdmin.value) {
-      // For admins, set the selected year to the most recent year
       const allYears = store.conferences.map(c => c.year)
       if (allYears.length > 0) {
         selectedYear.value = Math.max(...allYears)
@@ -679,7 +674,6 @@ onMounted(async () => {
         selectedYear.value = new Date().getFullYear()
       }
     } else {
-      // For editors, fetch their managed years
       await fetchUserManagedYears()
     }
     
@@ -693,12 +687,10 @@ onMounted(async () => {
   }
 })
 
-// Update the watch for selectedYear
 watch(selectedYear, async (newYear) => {
   if (isAdmin.value) {
     await loadEditors()
   }
-  // Reset form when changing years
   resetForm()
 })
 </script>
