@@ -60,23 +60,37 @@ export const useSubpageStore = defineStore('subpage', {
 
       this.loading = true
       this.error = null
+      
+      const authStore = useAuthStore()
+      
       try {
-        const response = await axios.get(`${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`)
-        this.currentSubpage = response.data
-        return response.data
-      } catch (error) {
         try {
-          const allSubpages = await this.fetchSubpages(conferenceId)
-          const subpage = allSubpages.find(sp => sp.slug === subpageId)
-          if (subpage) {
-            this.currentSubpage = subpage
-            return subpage
+          const response = await axios.get(
+            `${API_URL}/conferences/${conferenceId}/subpages/${subpageId}`,
+            { headers: authStore.authHeader }
+          )
+          
+          if (response.data) {
+            this.currentSubpage = response.data
+            return response.data
           }
-          throw new Error('Subpage not found')
-        } catch (innerError) {
-          this.error = innerError.response?.data?.message || 'Failed to fetch subpage'
-          throw innerError
+        } catch (idError) {
+          const response = await axios.get(
+            `${API_URL}/conferences/${conferenceId}/subpages/by-slug/${subpageId}`,
+            { headers: authStore.authHeader }
+          )
+          
+          if (response.data) {
+            this.currentSubpage = response.data
+            return response.data
+          }
         }
+        
+        throw new Error('Subpage not found')
+      } catch (error) {
+        console.error('Error fetching subpage:', error)
+        this.error = error.response?.data?.message || 'Failed to fetch subpage'
+        throw error
       } finally {
         this.loading = false
       }

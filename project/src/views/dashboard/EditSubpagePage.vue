@@ -187,18 +187,20 @@ export default {
         const user = JSON.parse(localStorage.getItem('user'))
         const conference = this.conferences.find(c => c.id === this.selectedConferenceId)
         
-        if (!user?.isAdmin && conference && !user?.managedYears?.includes(conference.year)) {
+        if (user?.role !== 'admin' && conference && !user?.managedYears?.includes(conference.year)) {
           this.error = 'You do not have permission to manage subpages for this conference.'
           this.selectedConferenceId = ''
           return
         }
         
-        await this.loadData()
+        if (this.isEditing) {
+          await this.loadData()
+        }
       }
     },
     
     async loadData() {
-      if (!this.selectedConferenceId || !this.isEditing) return
+      if (!this.selectedConferenceId || !this.isEditing || this.selectedConferenceId === 'all') return
       
       this.loading = true
       try {
@@ -280,8 +282,11 @@ export default {
     try {
       await this.fetchEditableConferences()
       
-      if (this.conferenceId) {
+      if (this.conferenceId && this.conferenceId !== 'all') {
         this.selectedConferenceId = this.conferenceId
+      }
+      
+      if (this.isEditing && this.selectedConferenceId && this.selectedConferenceId !== 'all') {
         await this.loadData()
       }
     } catch (error) {

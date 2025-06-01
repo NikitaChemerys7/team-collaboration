@@ -66,7 +66,7 @@
             <h3>{{ subpage.title }}</h3>
             <div class="subpage-actions">
               <router-link
-                :to="{ name: 'edit-subpage', params: { conferenceId: selectedConferenceId, subpageId: subpage.slug } }"
+                :to="{ name: 'edit-subpage', params: { conferenceId: selectedConferenceId, subpageId: subpage.id } }"
                 class="btn btn-outline"
               >
                 Edit
